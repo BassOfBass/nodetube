@@ -1,7 +1,6 @@
-/**
- * Controllers (route handlers).
- */
-/** BACKEND API CONTROLLERS **/
+/* Controllers (route handlers). */
+
+/* BACKEND API CONTROLLERS */
 const accountBackendController = require('./controllers/backend/account');
 const adminBackendController = require('./controllers/backend/admin');
 const internalApiController = require('./controllers/backend/internalApi');
@@ -12,8 +11,7 @@ const uploadingController = require('./controllers/backend/uploading');
 const youtubeController = require('./controllers/backend/youtube');
 const supportBackendController = require('./controllers/backend/support');
 
-/** FRONTEND PAGE CONTROLLERS **/
-
+/* FRONTEND PAGE CONTROLLERS */
 const accountFrontendController = require('./controllers/frontend/account');
 const adminFrontendController = require('./controllers/frontend/admin');
 const channelBrowsingController = require('./controllers/frontend/channelBrowsing');
@@ -29,7 +27,7 @@ const domainNameAndTLD = process.env.DOMAIN_NAME_AND_TLD;
 
 console.log(`DOMAIN NAME AND TLD: ${domainNameAndTLD}\n`);
 
-/** passport config **/
+/* passport config */
 const passportConfig = require('./config/passport');
 const authMiddleware = require('./middlewares/shared/authentication');
 
@@ -150,8 +148,8 @@ function frontendRoutes(app){
   // app.post('/contact', contactController.postContact);
 
   // UPLOADING
-  /** upload APIS **/
-  // API that the frontend hits for a uesr to upload
+  /* upload APIS */
+  // API that the frontend hits for a user to upload
   app.post('/upload', uploadingController.postFileUpload);
 
   // direct upload for admins that can be used to upload livestream recordings
@@ -160,7 +158,7 @@ function frontendRoutes(app){
   app.get('/globe', publicController.globe);
   app.get('/random', publicController.random);
 
-  /** channel browsing routes **/
+  /* channel browsing routes */
   app.get('/channels/:page', channelBrowsingController.channels);
   app.get('/channels', channelBrowsingController.channels);
 
@@ -215,7 +213,7 @@ function frontendRoutes(app){
   // app.get('/live', livestreamController.getLive);
   // app.get('/staging', livestreamController.getStaging);
 
-  /** LIVESTREAM ROUTES **/
+  /* LIVESTREAM ROUTES */
   // routes for nginx-rtmp
   app.post('/livestream/on-live-auth', livestreamBackendController.onLiveAuth);
   app.post('/livestream/on-live-done', livestreamBackendController.onLiveDone);

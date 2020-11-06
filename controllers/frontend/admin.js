@@ -1,18 +1,24 @@
+const express = require("express"); // only for soft-typing
 const redisClient = require('../../config/redis');
 const _ = require('lodash');
-const Upload = require('../../models/index').Upload;
-const AdminAction = require('../../models/index').AdminAction;
-const User = require('../../models/index').User;
-const Subscription = require('../../models/index').Subscription;
-const React = require('../../models/index').React;
-const Comment = require('../../models/index').Comment;
-const SiteVisit = require('../../models/index').SiteVisit;
+const {
+  Upload,
+  AdminAction,
+  User,
+  Subscription,
+  React,
+  Comment,
+  SiteVisit
+} = require('../../models/index');
 const pagination = require('../../lib/helpers/pagination');
 
 const { uploadServer} = require('../../lib/helpers/settings');
 
 let viewStats, uploadStats, userStats, reactStats, subscriptionStats, searchStats, commentStats, siteVisitStats;
 
+/**
+ * 
+ */
 async function getStats(){
   let views = await redisClient.getAsync('dailyStatsViews');
   let uploads = await redisClient.getAsync('dailyStatsUploads');
@@ -35,10 +41,15 @@ async function getStats(){
 }
 
 getStats();
-setInterval(function(){
+setInterval( function(){
   getStats();
 }, 1000 * 60 * 1);
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.dailyStats = async(req, res) => {
 
   let views = viewStats;
@@ -59,12 +70,17 @@ exports.dailyStats = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getAdminAudit = async(req, res) => {
 
   // exclude uploads without an uploadUrl
 
   let page = req.params.page;
-  if(!page){ page = 1; }
+  if (!page) { page = 1; }
   page = parseInt(page);
 
   const limit = 100;
@@ -74,8 +90,8 @@ exports.getAdminAudit = async(req, res) => {
 
   try {
     let adminActions = await AdminAction.find({})
-      .populate({path: 'adminOrModerator uploadsAffected usersAffected', populate: {path: 'uploader'}})
-      .skip(skipAmount).limit(limit).lean();
+    .populate({path: 'adminOrModerator uploadsAffected usersAffected', populate: {path: 'uploader'}})
+    .skip(skipAmount).limit(limit).lean();
 
     adminActions = adminActions.reverse();
 
@@ -92,11 +108,18 @@ exports.getAdminAudit = async(req, res) => {
     });
   } catch(err){
     console.log(err);
+
     return res.render('error/500');
+
   }
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getPending = async(req, res) => {
 
   // exclude uploads without an uploadUrl
@@ -114,6 +137,11 @@ exports.getPending = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
 exports.getSiteVisitorHistory = async(req, res) => {
 
   const id = req.params.id;
@@ -131,6 +159,11 @@ exports.getSiteVisitorHistory = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
 exports.getSiteVisitors = async(req, res) => {
   let page = req.params.page;
   if(!page){ page = 1; }
@@ -160,6 +193,11 @@ exports.getSiteVisitors = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getUploads = async(req, res) => {
 
   let page = req.params.page;
@@ -190,6 +228,11 @@ exports.getUploads = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
 exports.getComments = async(req, res) => {
   let page = req.params.page;
   if(!page){ page = 1; }
@@ -220,10 +263,20 @@ exports.getComments = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
 exports.getNotificationPage = async(req, res) => {
   return res.render('admin/notifications', {});
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getUsers = async(req, res) => {
 
   let page = req.params.page;
@@ -257,6 +310,11 @@ exports.getUsers = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.reacts = async(req, res) => {
 
   if(!req.user){
@@ -304,6 +362,11 @@ exports.reacts = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
 exports.subscriptions = async(req, res) => {
 
   if(!req.user){
@@ -352,6 +415,11 @@ exports.subscriptions = async(req, res) => {
 
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
 exports.getAdminOverview = async(req, res) => {
   return res.render('admin/adminOverview', {});
 };

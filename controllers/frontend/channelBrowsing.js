@@ -1,8 +1,14 @@
+const express = require("express"); // only for soft-typing
 const pagination = require('../../lib/helpers/pagination');
 const _ = require('lodash');
 const getFromCache = require('../../caching/getFromCache');
-const User = require('../../models/index').User;
+const { User } = require('../../models/index');
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.channelsByReacts = async(req, res) => {
   // setup page
   let page = req.params.page;
@@ -19,25 +25,30 @@ exports.channelsByReacts = async(req, res) => {
 
     let allChannels = await User.find({
       status: { $ne: 'restricted' }
-    }).populate('subscribers uploads').lean().exec();
+    }).populate('subscribers uploads')
+    .lean().exec();
 
-    for(let channel of allChannels){
+    for (let channel of allChannels) {
 
       let reactAmount = 0;
 
-      for(let upload in channel.uploads){
-        if(upload.reacts){
-          if(upload.reacts.length > 0){
+      for (let upload in channel.uploads) {
+
+        if (upload.reacts) {
+
+          if (upload.reacts.length > 0) {
             let amountOfReacts = upload.reacts.length;
             reactAmount = reactAmount + amountOfReacts;
           }
+
         }
+
       }
 
       channel.reactAmount = reactAmount || 0;
     }
 
-    for(channel of allChannels){
+    for (channel of allChannels) {
       console.log(channel.reactAmount);
     }
 
@@ -64,16 +75,23 @@ exports.channelsByReacts = async(req, res) => {
     console.log(err);
 
     res.status(500);
+
     return res.render('error/500', {
       title: 'Server Error'
     });
   }
+
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.channelsBySubs = async(req, res) => {
   // setup page
   let page = req.params.page;
-  if(!page){ page = 1; }
+  if (!page) { page = 1; };
   page = parseInt(page);
 
   const startingNumber = pagination.getMiddleNumber(page);
@@ -90,7 +108,9 @@ exports.channelsBySubs = async(req, res) => {
     });
 
     allChannels = allChannels.sort(function(a, b){
+
       return b.receivedSubscriptions.length - a.receivedSubscriptions.length;
+
     });
 
     res.render('public/channelsBySubs', {
@@ -106,15 +126,21 @@ exports.channelsBySubs = async(req, res) => {
     console.log(err);
 
     res.status(500);
+
     return res.render('error/500', {
       title: 'Server Error'
     });
+
   }
+  
 };
 
 /**
- * GET /channelsBySubs
+ * `GET` `/channelsBySubs`
+ * 
  * Channels page with ability to sort by views via query params
+ * @param {express.Request} req 
+ * @param {express.Response} res
  */
 exports.channels = async(req, res) => {
 
@@ -140,7 +166,7 @@ exports.channels = async(req, res) => {
 
   // get and render
   try {
-
+    // TODO: investigate this block
     let channels = await getFromCache.getChannels(req.query.within, limit, skipAmount);
 
     // let uploads = await getUploads.getUploads(req.query.within, limit, skipAmount);
@@ -161,8 +187,11 @@ exports.channels = async(req, res) => {
     console.log(err);
 
     res.status(500);
+
     return res.render('error/500', {
       title: 'Server Error'
     });
+    
   }
+  
 };

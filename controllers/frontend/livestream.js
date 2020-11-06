@@ -1,9 +1,13 @@
+const express = require("express"); // only for JSDoc typing
 const domainNameAndTLD = process.env.DOMAIN_NAME_AND_TLD;
-const User = require('../../models/index').User;
+const { User } = require('../../models/index');
 
 /**
- * GET /live/${channelUrl}
- * Get RTMP viewing page (current livestream page)
+ * `GET` `/live/${channelUrl}`
+ * 
+ * Get RTMP viewing page (current livestream page).
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getLiveRTMP = async(req, res) => {
 
@@ -29,18 +33,22 @@ exports.getLiveRTMP = async(req, res) => {
 };
 
 /**
- * GET /live/$username
+ * `GET` `/live/$username`
+ * 
  * Get viewing page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getLive = (req, res) => {
 
   console.log('here');
 
   // ?
-  if(process.env.LIVESTREAM_APP !== 'true' && process.env.NODE_ENV == 'production'){
+  if (process.env.LIVESTREAM_APP !== 'true' && process.env.NODE_ENV == 'production') {
     const livestreamApp = `https://live.${domainNameAndTLD}`;
 
     return res.redirect(livestreamApp + req.path);
+    
   }
 
   res.render('livestream/view', {

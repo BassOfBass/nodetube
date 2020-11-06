@@ -1,21 +1,20 @@
-const Upload = require('../../models/index').Upload;
-const User = require('../../models/index').User;
-const View = require('../../models/index').View;
-const Subscription = require('../../models/index').Subscription;
-const PushSubscription = require('../../models/index').PushSubscription;
-const EmailSubscription = require('../../models/index').EmailSubscription;
-const LastWatchedTime = require('../../models/index').LastWatchedTime;
+const express = require("express") // only for JSDoc typing
+const { 
+  Upload,
+  User,
+  View,
+  Subscription,
+  PushSubscription,
+  EmailSubscription,
+  LastWatchedTime,
+} = require('../../models/index');
 
 const timeHelper = require('../../lib/helpers/time');
-
-const uploadHelpers = require('../../lib/helpers/settings');
-
 const checkWhetherToCountView = require('../../middlewares/shared/viewCounting');
-
 const { bytesToGb, bytesToMb } = require('../../lib/uploading/helpers');
-
 const categories = require('../../config/categories');
 
+const uploadHelpers = require('../../lib/helpers/settings');
 let uploadServer  = uploadHelpers.uploadServer;
 
 const _ = require('lodash');
@@ -29,22 +28,43 @@ console.log(`UPLOAD SERVER: ${uploadServer}\n`);
 
 const brandName = process.env.INSTANCE_BRAND_NAME;
 
+/**
+ * 
+ * @param {*} name 
+ * @param {*} url 
+ */
 function getParameterByName(name, url){
-  if(!url) url = window.location.href;
+
+  if (!url) url = window.location.href;
+
   name = name.replace(/[\[\]]/g, '\\$&');
   var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
     results = regex.exec(url);
-  if(!results)return null;
-  if(!results[2])return'';
+
+  if (!results) return null;
+
+  if (!results[2]) return'';
+
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
+
 }
 
-function convertAllAgesToSfw(value){
-  if(value == 'allAges'){
-    return'SFW';
-  } else if(value == 'mature'){
-    return'NSFW';
+/**
+ * 
+ * @param {string} value 
+ */
+function convertAllAgesToSfw(value) {
+
+  if (value == 'allAges') {
+
+    return 'SFW';
+
+  } else if (value == 'mature') {
+
+    return 'NSFW';
+
   }
+
 }
 
 const secondsToFormattedTime = timeHelper.secondsToFormattedTime;
@@ -67,48 +87,48 @@ function getFormattedFileSize(upload){
 }
 
 /**
- * GET /$user/$uploadUniqueTag
+ * `GET` `/$user/$uploadUniqueTag`
+ * 
  * Media player page
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getMedia = async(req, res) => {
   
-
   try {
-
     // channel id and file name
-      const channel = req.params.channel;
-      const media = req.params.media;
-      user = await User.findOne({
-        // regex for case insensitivity
-        channelUrl:  new RegExp(['^', req.params.channel, '$'].join(''), 'i')
-      }).populate('receivedSubscriptions').lean()
-        .exec();
+    const channel = req.params.channel;
+    const media = req.params.media;
 
-      const pushSubscriptionSearchQuery = {
-        subscribedToUser :  user._id,
-        subscribingUser: req.user._id,
-        active: true
-      }
+    const user = await User.findOne({
+      // regex for case insensitivity
+      channelUrl:  new RegExp(['^', req.params.channel, '$'].join(''), 'i')
+    }).populate('receivedSubscriptions').lean().exec();
 
-      let existingPushSub;
-      if(req.user){
-        existingPushSub = await PushSubscription.findOne(pushSubscriptionSearchQuery);
-      }
-  
-      let existingEmailSub;
-      if(req.user){
-        existingEmailSub = await EmailSubscription.findOne(pushSubscriptionSearchQuery);
-      }
-      // if the user already has push notis turned on
-      const alreadyHavePushNotifsOn = Boolean(existingPushSub);
-  
-      const alreadySubscribedForEmails = Boolean(existingEmailSub);
+    const pushSubscriptionSearchQuery = {
+      subscribedToUser :  user._id,
+      subscribingUser: req.user._id,
+      active: true
+    }
 
-      console.log("alreadyHavePushNotifsOn: ")
-      console.log(alreadyHavePushNotifsOn);
+    let existingPushSub;
 
-      console.log("alreadySubscribedForEmails: ")
-      console.log(alreadySubscribedForEmails);
+    if (req.user) {
+      existingPushSub = await PushSubscription.findOne(pushSubscriptionSearchQuery);
+    }
+
+    let existingEmailSub;
+
+    if (req.user) {
+      existingEmailSub = await EmailSubscription.findOne(pushSubscriptionSearchQuery);
+    }
+
+    // if the user already has push notis turned on
+    const alreadyHavePushNotifsOn = Boolean(existingPushSub);
+    const alreadySubscribedForEmails = Boolean(existingEmailSub);
+
+    console.log("alreadyHavePushNotifsOn: " + alreadyHavePushNotifsOn);
+    console.log("alreadySubscribedForEmails: " + alreadySubscribedForEmails);
 
     let upload = await Upload.findOne({
       uniqueTag: media
@@ -118,11 +138,13 @@ exports.getMedia = async(req, res) => {
     // because it will return true even if there is no upload
     const return404 = hideUpload(upload, req.user, res);
 
-    if(return404){
+    if (return404) {
       res.status(404);
+
       return res.render('error/404', {
         title: 'Not Found'
       });
+
     }
 
     // either use viral server, the uploadServer on the document or the general uploadServer
@@ -132,7 +154,8 @@ exports.getMedia = async(req, res) => {
     // determine if its the user of the channel
     let isAdmin = false;
     let isUser = false;
-    if(req.user){
+
+    if (req.user) {
       // its the same user
       isUser =  ( req.user._id.toString() == upload.uploader._id.toString()  );
 
@@ -141,7 +164,6 @@ exports.getMedia = async(req, res) => {
     }
 
     const isUploader =  req.user && req.user._id.toString() == upload.uploader._id.toString();
-
     const isUserOrAdmin = isAdmin || isUser;
     const isUploaderOrAdmin = isUploader || isAdmin;
 
@@ -149,8 +171,8 @@ exports.getMedia = async(req, res) => {
     alreadyReported = false;
     viewingUserIsBlocked = false;
 
-    /** calculate info to show to frontend **/
-    // amount of total subs
+    /* calculate info to show to frontend */
+    /** Amount of total subs. */
     let subscriberAmount = await Subscription.countDocuments({subscribedToUser: upload.uploader._id, active: true});
 
     // calculate if viewer has is subbed
@@ -158,11 +180,8 @@ exports.getMedia = async(req, res) => {
     let alreadySubbed = subscriptions > 0;
 
     const { comments, commentCount } = await generateComments(upload._id);
-
     const reactInfo = await generateReactInfo(upload, req.user);
-
     const emojis = reactInfo.emojis;
-
     const currentReact = reactInfo.currentReact;
 
     upload.views = await View.countDocuments({
@@ -176,7 +195,7 @@ exports.getMedia = async(req, res) => {
 
     // console.log(shouldCreateAView);
 
-    if(shouldCreateAView){
+    if (shouldCreateAView) {
       // get all the views for this upload for this user
       // TODO: add a rule to only get the last 24h of worth of views
       const view = new View({
@@ -186,7 +205,6 @@ exports.getMedia = async(req, res) => {
       });
 
       await view.save();
-
       await Upload.findOneAndUpdate({ uniqueTag: media },
         {$push: { checkedViews: view._id}},
         {new: true});
@@ -194,11 +212,8 @@ exports.getMedia = async(req, res) => {
 
     // originalFileSizeInMb: Number,
     // processedFileSizeInMb: Number,
-
     const formattedFileSize = getFormattedFileSize(upload);
-
     // document is fine to be shown publicly
-
     // for the copy buttons and sharing buttons
     const url = req.protocol + '://' + req.get('host') + req.originalUrl;
 
@@ -209,24 +224,28 @@ exports.getMedia = async(req, res) => {
 
     let lastWatchedTime;
     let formattedLastWatchedTime;
-    if(req.user){
+
+    if (req.user) {
       lastWatchedTime = await LastWatchedTime.findOne({
         user : req.user._id,
         upload: upload._id
       });
 
-      if(lastWatchedTime){
+      if (lastWatchedTime) {
         formattedLastWatchedTime = timeHelper.secondsToFormattedTime(Math.round(lastWatchedTime.secondsWatched));
       }
 
     }
 
     let uploadFps;
-    if(upload.ffprobeData){
+
+    if (upload.ffprobeData) {
       // console.log('running here!');
 
       const videoStream =  upload.ffprobeData.streams.filter(stream => {
+
         return stream.codec_type == 'video';
+
       });
 
       // console.log(videoStream);
@@ -275,10 +294,8 @@ exports.getMedia = async(req, res) => {
       alreadySubscribedForEmails
     });
 
-  } catch(err){
-
+  } catch(err) {
     console.log(err);
-
     res.status(500);
     res.render('error/500');
   }

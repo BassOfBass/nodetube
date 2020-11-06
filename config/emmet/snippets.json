@@ -1,0 +1,7 @@
+{
+  "html": {
+    "snippets": {
+      "inputgroup:file": "div>(label[for=${0}]+input[id=${0}, type={file}, name={file}])"
+    }
+  }
+}

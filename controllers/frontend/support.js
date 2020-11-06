@@ -1,26 +1,30 @@
+const express = require("express"); // only for jdoc typing
 const ReceivedEmail = require('../../models/index').ReceivedEmail;
 const Report = require('../../models/index').Report;
 
 const domainNameAndTLD = process.env.DOMAIN_NAME_AND_TLD;
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getReceivedEmails = async(req, res) => {
-
   const receivingEmailAddress = req.query.to;
-
   // console.log(req.query.respondedTo);
-
   let respondedTo = req.query.respondedTo;
 
   // if not true or false
-  if(respondedTo !== 'false' && respondedTo !== 'true' ){
+  if (respondedTo !== 'false' && respondedTo !== 'true' ) {
     respondedTo = 'false';
   }
 
   // console.log(respondedTo); // true
-
   // dont let users access ceo emails unless
-  if(receivingEmailAddress == `ceo@${domainNameAndTLD}` && req.user.role !== 'admin'){
+  if (receivingEmailAddress == `ceo@${domainNameAndTLD}` && req.user.role !== 'admin') {
+
     return[];
+
   }
 
   // exclude uploads without an uploadUrl
@@ -29,17 +33,19 @@ exports.getReceivedEmails = async(req, res) => {
   receivedEmails = receivedEmails.reverse();
 
   // console.log(receivedEmails);
-
   res.render('moderator/receivedEmails', {
     title: 'Received Emails',
     receivedEmails
   });
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getReceivedEmail = async(req, res) => {
-
   const id = req.params.id;
-
   // exclude uploads without an uploadUrl
   let receivedEmail = await ReceivedEmail.findById(id).lean();
 
@@ -52,6 +58,11 @@ exports.getReceivedEmail = async(req, res) => {
   });
 };
 
+/**
+ * 
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getReports = async(req, res) => {
 
   let reports = await Report.find({ reportingUser: { $exists: true } }).populate('reportingUser upload uploadingUser')

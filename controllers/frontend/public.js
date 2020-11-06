@@ -1,25 +1,29 @@
+const express = require("express"); // for JSDoc typing only
 const redisClient = require('../../config/redis');
-
 const getFromCache = require('../../caching/getFromCache');
 const uploadHelpers = require('../../lib/helpers/settings');
 const uploadServer = uploadHelpers.uploadServer;
 
-const Upload = require('../../models/index').Upload;
+const { Upload } = require('../../models/index');
 
 const logCaching = process.env.LOG_CACHING;
 const defaultLandingPage = process.env.DEFAULT_LANDING_PAGE;
 
 // TODO: pull into its own func
 let indexResponse;
-async function setIndex(){
+/**
+ * 
+ */
+async function setIndex() {
   indexResponse = await redisClient.hgetallAsync('indexValues');
-  if(logCaching == 'true'){
+
+  if (logCaching == 'true') {
     console.log('got index cache');
   }
 }
 
 // get the index if its not a filehost
-if(!process.env.FILE_HOST  || process.env.FILE_HOST == 'false'){
+if (!process.env.FILE_HOST  || process.env.FILE_HOST == 'false'){
   setIndex();
   setInterval(function(){
     setIndex();
@@ -27,23 +31,20 @@ if(!process.env.FILE_HOST  || process.env.FILE_HOST == 'false'){
 }
 
 /**
- * GET /
+ * `GET` `/`
+ * 
  * Home page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.index = async(req, res) => {
-
   const title = 'Home';
 
-  // for the category overview section, defaulted to SFW content
-  if(defaultLandingPage == 'overview'){
+  if (defaultLandingPage == 'overview') { // for the category overview section, defaulted to SFW content
     res.redirect('/media/recent?category=overview&rating=SFW');
-
-    // for recent uploads without categories, defaulted to SFW
-  } else if(defaultLandingPage == 'recent'){
+  } else if (defaultLandingPage == 'recent') { // for recent uploads without categories, defaulted to SFW
     res.redirect('/media/recent?category=all&rating=SFW');
-
-    // globe functionality
-  } else if(defaultLandingPage == 'globe'){
+  } else if (defaultLandingPage == 'globe') { // globe functionality
 
     // get 150 most popular uploads in last 24h that are sfw and from any category
     let uploads = await getFromCache.getPopularUploads('24hour', 150, 0, 'all', 'SFW', 'all', '');
@@ -54,13 +55,12 @@ exports.index = async(req, res) => {
       uploads
     });
 
-    // standard landing page that shows the amount of uploads, users and views
-  } else {
-
+    
+  } else { // standard landing page that shows the amount of uploads, users and views
     const response = indexResponse;
     let mediaAmount, channelAmount, viewAmount;
 
-    if(!response){
+    if (!response) {
       mediaAmount = 0;
       channelAmount = 0;
       viewAmount = 0;
@@ -77,20 +77,20 @@ exports.index = async(req, res) => {
       viewAmount,
       uploadServer
     });
-
   }
 };
 
 /**
- * GET /landing
- * Landing page
+ * `GET` `/landing`
+ * 
+ * Landing page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getLandingPage = async(req, res) => {
-
   const title = 'Home';
 
-  if(defaultLandingPage == 'globe'){
-
+  if (defaultLandingPage == 'globe') {
     // get 150 most popular uploads in last 24h that are sfw and from any category
     let uploads = await getFromCache.getPopularUploads('24hour', 150, 0, 'all', 'SFW', 'all', '');
 
@@ -101,11 +101,10 @@ exports.getLandingPage = async(req, res) => {
     });
 
   } else {
-
     const response = indexResponse;
     let mediaAmount, channelAmount, viewAmount;
 
-    if(!response){
+    if (!response) {
       mediaAmount = 0;
       channelAmount = 0;
       viewAmount = 0;
@@ -122,16 +121,17 @@ exports.getLandingPage = async(req, res) => {
       viewAmount,
       uploadServer
     });
-
   }
 };
 
 /**
- * GET /globe
+ * `GET` `/globe`
+ * 
  * Globe page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.globe = async(req, res) => {
-
   let uploads = await getFromCache.getPopularUploads('24hour', 150, 0, 'all', 'SFW', 'all', '');
 
   res.render('public/globe', {
@@ -142,8 +142,11 @@ exports.globe = async(req, res) => {
 };
 
 /**
- * GET /random
+ * `GET` `/random`
+ * 
  * Random redirect page page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.random = async(req, res) => {
   // and not deleted
@@ -157,28 +160,31 @@ exports.random = async(req, res) => {
   return res.redirect(`/user/v/${upload.uniqueTag}/`);
 
   // /user/v/Kqd5SfS
-
-  console.log(upload);
-
-  console.log(upload.uniqueTag);
-
-  res.send('hello');
-
+  // console.log(upload);
+  // console.log(upload.uniqueTag);
+  // res.send('hello');
 };
 
 /**
- * GET /
+ * `GET` `/`
+ * 
  * About page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.about = (req, res) => {
+
   res.render('public/about', {
     title: 'About'
   });
 };
 
 /**
- * GET /tos
+ * `GET` `/tos`
+ * 
  * Terms of service page
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.tos = async(req, res) => {
 
@@ -188,10 +194,14 @@ exports.tos = async(req, res) => {
 };
 
 /**
- * GET /privacy
- * Privacy policy
+ * `GET` `/privacy`
+ * 
+ * Privacy policy.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.privacy = async(req, res) => {
+
   // res.render('privacy', {
   //   title: 'Privacy'
   // })
@@ -199,26 +209,29 @@ exports.privacy = async(req, res) => {
 };
 
 /**
- * GET /embed/$uploadUniqueTag
- * Embed page
+ * `GET` `/embed/$uploadUniqueTag`
+ * 
+ * Embed page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getEmbed = async function(req, res){
 
   res.setHeader('X-Frame-Options', 'ALLOW-FROM ' + req.query.domain);
-
   const uniqueTag = req.params.uniqueTag;
 
   // TODO: need to increment an embed there
-
   let upload = await Upload.findOne({
     uniqueTag,
     visibility: { $ne: 'removed' }
   }).populate({path: 'uploader', populate: {path: ''}}).exec();
 
-  if(!upload){
+  if (!upload) {
     console.log('Visible upload not found');
     res.status(404);
+
     return res.render('error/404');
+
   }
 
   res.render('public/embed', {
@@ -230,8 +243,11 @@ exports.getEmbed = async function(req, res){
 };
 
 /**
- * GET /docs
- * Docs page
+ * `GET` `/docs`
+ * 
+ * Docs page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getDocs = async(req, res) => {
 
@@ -241,11 +257,13 @@ exports.getDocs = async(req, res) => {
 };
 
 /**
- * GET /donate
- * Donation page
+ * `GET` `/donate`
+ * 
+ * Donation page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getDonate = async(req, res) => {
-
   const stripeToken = process.env.STRIPE_FRONTEND_TOKEN;
 
   res.render('public/donate', {
@@ -255,8 +273,11 @@ exports.getDonate = async(req, res) => {
 };
 
 /**
- * GET /plus
- * Plus page
+ * `GET` `/plus`
+ * 
+ * Plus page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getPlus = async(req, res) => {
 

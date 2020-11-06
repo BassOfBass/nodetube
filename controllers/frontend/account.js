@@ -1,21 +1,23 @@
-/** UNFINISHED **/
+/* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
+const express = require("express"); // importing for jsdoc typing
 const randomstring = require('randomstring');
 const _ = require('lodash');
-const User = require('../../models/index').User;
-const Upload = require('../../models/index').Upload;
-const Comment = require('../../models/index').Comment;
-const View = require('../../models/index').View;
-const SiteVisit = require('../../models/index').SiteVisit;
-const React = require('../../models/index').React;
-const Notification = require('../../models/index').Notification;
-const SocialPost = require('../../models/index').SocialPost;
-const Subscription = require('../../models/index').Subscription;
-const PushSubscription = require('../../models/index').PushSubscription;
-const EmailSubscription = require('../../models/index').EmailSubscription;
-
-const PushEndpoint = require('../../models/index').PushEndpoint;
+const { 
+  User,
+  Upload,
+  Comment,
+  View,
+  SiteVisit,
+  React,
+  Notification,
+  SocialPost,
+  Subscription,
+  PushSubscription,
+  EmailSubscription,
+  PushEndpoint 
+} = require('../../models/index');
 
 const RSS = require('rss');
 
@@ -55,18 +57,26 @@ const secondsToFormattedTime = timeHelper.secondsToFormattedTime;
 
 const forgotEmailFunctionalityOn = process.env.FORGOT_PASSWORD_EMAIL_FUNCTIONALITY_ON == 'true';
 
-// TODO: pull this function out
-async function addValuesIfNecessary(upload, channelUrl){
-  if(upload.fileType == 'video' || upload.fileType == 'audio'){
-    if(!upload.durationInSeconds || !upload.formattedDuration){
+/**
+ * TODO: pull this function out
+ * @param {*} upload 
+ * @param {*} channelUrl 
+ */
+async function addValuesIfNecessary(upload, channelUrl) {
 
+  if (upload.fileType == 'video' || upload.fileType == 'audio') {
+
+    if (!upload.durationInSeconds || !upload.formattedDuration) {
       var server = uploadServer;
-      if(server.charAt(0) == '/') // the slash confuses the file reading, because host root directory is not the same as machine root directory
+
+      if (server.charAt(0) == '/') {// the slash confuses the file reading, because host root directory is not the same as machine root directory
         server = server.substr(1);
+      }
 
       const uploadLocation = `${server}/${channelUrl}/${upload.uniqueTag + upload.fileExtension}`;
 
       try {
+
         const duration = await getUploadDuration(uploadLocation, upload.fileType);
         console.log(duration);
 
@@ -78,28 +88,33 @@ async function addValuesIfNecessary(upload, channelUrl){
         await uploadDocument.save();
 
       } catch(err){
-        /** if the file has been deleted then it won't blow up **/
+        // if the file has been deleted then it won't blow up 
         // console.log(err);
       }
       // console.log('have to add');
     }
   }
+
 }
 
 /**
- * GET /upload
+ * `GET` `/upload`
  * Page to facilitate user uploads
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getFileUpload = async(req, res) => {
 
-  if(process.env.UPLOADS_DISABLED == 'true'){
+  if (process.env.UPLOADS_DISABLED == 'true') {
+
     return res.render('api/disabledUploads', {
       title: 'File Upload'
     });
+
   }
 
   // give user an upload token
-  if(!req.user.uploadToken){
+  if (!req.user.uploadToken) {
     const uploadToken = randomstring.generate(25);
     req.user.uploadToken = uploadToken;
     await req.user.save();
@@ -116,14 +131,17 @@ exports.getFileUpload = async(req, res) => {
 };
 
 /**
- * GET /media/subscribed
- * Get user's individual subscriptions page
+ * `GET` `/media/subscribed`
+ * 
+ * Get user's individual subscriptions page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.subscriptions = async(req, res) => {
 
   try {
 
-    if(!req.user){
+    if (!req.user) {
       req.flash('errors', {msg: 'Please register to see your subscriptions'});
 
       return res.redirect('/signup');
@@ -178,8 +196,11 @@ exports.subscriptions = async(req, res) => {
 };
 
 /**
- * GET /user/$username/rss
- * Channel rss page
+ * `GET` `/user/$username/rss`
+ * 
+ * Channel rss page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getChannelRss = async(req, res) => {
   const channelUrl = req.params.channel;
@@ -247,21 +268,27 @@ exports.getChannelRss = async(req, res) => {
   }
 };
 
-// TODO: desperately needs a cleanup
 /**
-   * GET /user/$username
-   * Channel page
-   */
+ * `GET` `/user/$username`
+ * 
+ * Channel page.
+ * 
+ * TODO: desperately needs a cleanup.
+ * @param {express.Request} req
+ * @param {express.Response} res
+ */
 exports.getChannel = async(req, res) => {
 
   let page = req.query.page;
-  if(!page){ page = 1; }
+
+  if (!page) { page = 1; }
+
   page = parseInt(page);
 
   const channelUrl = req.params.channel;
 
   let media = req.query.mediaType;
-  if(!media){
+  if (!media) {
     media = 'all';
   }
   const mediaType = media;
@@ -281,12 +308,14 @@ exports.getChannel = async(req, res) => {
       .exec();
 
     // 404 if no user found
-    if(!user){
+    if (!user) {
       res.status(404);
+
       return res.render('error/404', {
         item: 'user',
         title: 'Not Found'
       });
+
     }
 
     let viewerIsMod = Boolean(req.user && (req.user.role == 'admin' || req.user.role == 'moderator'));
@@ -294,28 +323,32 @@ exports.getChannel = async(req, res) => {
     let viewerIsOwner = (req.user && req.user.channelUrl) == user.channelUrl;
 
     let viewerIsAdminOrMod = false;
-    if(req.user && (req.user.role == 'admin' || req.user.role == 'moderator')){
+    if ( req.user && (req.user.role == 'admin' || req.user.role == 'moderator') ){
       viewerIsAdminOrMod = true;
     }
 
     const channelIsRestrictedAndNotAMod = user.status == 'restricted' && !viewerIsAdminOrMod;
 
     //  404 if channel is restricted
-    if(channelIsRestrictedAndNotAMod ){
+    if (channelIsRestrictedAndNotAMod ) {
       res.status(404);
+
       return res.render('error/404', {
         title: 'Not Found'
       });
+
     }
 
-    if(user.channelUrl !== req.params.channel){
+    if (user.channelUrl !== req.params.channel) {
+
       return res.redirect('/user/' + user.channelUrl);
+
     }
 
     const siteVisits = await SiteVisit.find({ user: user });
 
     let ips = [];
-    for(const visit of siteVisits){
+    for (const visit of siteVisits) {
       ips.push(visit.ip);
     }
 
@@ -327,7 +360,7 @@ exports.getChannel = async(req, res) => {
     let isAdmin = false;
     let isUser = false;
     const isModerator = req.user && ( req.user.role == 'isModerator' ) ;
-    if(req.user){
+    if (req.user) {
       // its the same user
       isUser =  ( req.user._id.toString() == user._id.toString()  );
 
@@ -343,7 +376,7 @@ exports.getChannel = async(req, res) => {
       // status: 'completed'
     };
 
-    /** DB CALL TO GET UPLOADS **/
+    /* DB CALL TO GET UPLOADS */
     let uploads = await Upload.find(searchQuery).populate('').sort({ createdAt : -1 });
 
     uploads = filterUploadsByMediaType(uploads, mediaType);
@@ -582,8 +615,11 @@ exports.getChannel = async(req, res) => {
 };
 
 /**
- * GET /notifications
- * User's specific notifications page
+ * `GET` `/notifications`
+ * 
+ * User's specific notifications page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.notification = async(req, res) => {
 
@@ -636,20 +672,25 @@ exports.notification = async(req, res) => {
 };
 
 /**
- * GET /subscriptionsByViews
- * Shows subscription uploads ordered by view amount
+ * `GET` `/subscriptionsByViews`
+ * 
+ * Shows subscription uploads ordered by view amount.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.subscriptionsByViews = async(req, res) => {
-  if(!req.user){
+
+  if (!req.user) {
     req.flash('errors', { msg: 'Please login to see your subscriptions' });
 
     return res.redirect('/');
+
   }
 
   const subscriptions = await Subscription.find({ subscribingUser: req.user._id, active: true });
 
   let subscribedToUsers = [];
-  for(const subscription of subscriptions){
+  for ( const subscription of subscriptions ) {
     subscribedToUsers.push(subscription.subscribedToUser);
   }
 
@@ -670,8 +711,11 @@ exports.subscriptionsByViews = async(req, res) => {
 };
 
 /**
- * GET /Edit upload channel
+ * `GET` `/Edit upload channel`
+ * 
  * Profile page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.editUpload = async(req, res) => {
 
@@ -715,8 +759,11 @@ exports.editUpload = async(req, res) => {
 };
 
 /**
- * GET /logout
+ * `GET` `/logout`
+ * 
  * Log out.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.logout = (req, res) => {
   req.logout();
@@ -724,18 +771,21 @@ exports.logout = (req, res) => {
 };
 
 /**
- * GET /signup
+ * `GET` `/signup`
+ * 
  * Signup page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getSignup = (req, res) => {
 
   const recaptchaPublicKey = process.env.RECAPTCHA_SITEKEY;
-
   const captchaOn = process.env.RECAPTCHA_ON == 'true';
 
-  if(req.user){
+  if (req.user) {
     return res.redirect('/');
   }
+
   res.render('account/signup', {
     title: 'Create Account',
     recaptchaPublicKey,
@@ -744,25 +794,27 @@ exports.getSignup = (req, res) => {
 };
 
 /**
- * GET /account
+ * `GET` `/account`
+ * 
  * Account page.
+ * 
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getAccount = async(req, res) => {
   const stripeToken = process.env.STRIPE_FRONTEND_TOKEN;
-
   const plusEnabled = process.env.PLUS_ENABLED == 'true';
-
   const verifyEmailFunctionalityOn = process.env.CONFIRM_EMAIL_FUNCTIONALITY_ON == 'true';
 
   // give user an upload token
-  if(!req.user.uploadToken){
+  if (!req.user.uploadToken) {
     const uploadToken = randomstring.generate(25);
     req.user.uploadToken = uploadToken;
     await req.user.save();
   }
 
   // delete email if it a standin number
-  if(req.user.email && !validator.validate(req.user.email)){
+  if ( req.user.email && !validator.validate(req.user.email) ) {
     req.user.email = undefined;
   }
 
@@ -777,8 +829,11 @@ exports.getAccount = async(req, res) => {
 };
 
 /**
- * GET /account/reactHistory
- * React history page.
+ * `GET` `/account/reactHistory`
+ * 
+ * Reaction history page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getReactHistory = async(req, res) => {
   const reacts = await React.find({
@@ -792,8 +847,11 @@ exports.getReactHistory = async(req, res) => {
 };
 
 /**
- * GET /account/viewHistory
+ * `GET` `/account/viewHistory`
+ * 
  * View history page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getViewHistory = async(req, res) => {
 
@@ -809,7 +867,12 @@ exports.getViewHistory = async(req, res) => {
   const views = await View.find({
     validity: 'real',
     siteVisitor: { $in : ids }
-  }).populate({path: 'upload', populate: {path: 'uploader'}}).sort({ createdAt: -1 });
+  })
+  .populate({ 
+    path: 'upload', 
+    populate: {path: 'uploader'} 
+  })
+  .sort({ createdAt: -1 });
 
   console.log(views.length);
 
@@ -820,39 +883,55 @@ exports.getViewHistory = async(req, res) => {
 };
 
 /**
- * GET /reset/:token
+ * `GET` `/reset/:token`
+ * 
  * Reset Password page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getReset = (req, res, next) => {
-  if(req.isAuthenticated()){
+
+  if ( req.isAuthenticated() ) {
     return res.redirect('/');
   }
+
   User
-    .findOne({ passwordResetToken: req.params.token })
-    .where('passwordResetExpires').gt(Date.now())
-    .exec((err, user) => {
-      if(err){ return next(err); }
-      if(!user){
-        req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
-        return res.redirect('/forgot');
-      }
-      res.render('account/reset', {
-        title: 'Password Reset'
-      });
+  .findOne({ passwordResetToken: req.params.token })
+  .where('passwordResetExpires').gt( Date.now() )
+  .exec((err, user) => {
+
+    if (err) { return next(err); }
+
+    if (!user) {
+      req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
+
+      return res.redirect('/forgot');
+
+    }
+
+    res.render('account/reset', {
+      title: 'Password Reset'
     });
+  });
 };
 
 /**
- * GET /confirm/:token
+ * `GET` `/confirm/:token`
+ * 
  * Confirm email page
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getConfirm = async(req, res, next) => {
-  try {
-    let user = await User.findOne({ emailConfirmationToken: req.params.token }).where('emailConfirmationExpires').gt(Date.now());
 
-    if(!user){
+  try {
+    let user = await User.findOne({ emailConfirmationToken: req.params.token }).where('emailConfirmationExpires').gt( Date.now() );
+
+    if (!user) {
       req.flash('errors', { msg: 'Confirm email token is invalid or has expired.' });
+
       return res.redirect('/account');
+
     }
 
     user.emailConfirmed = true;
@@ -860,25 +939,35 @@ exports.getConfirm = async(req, res, next) => {
     req.flash('success', { msg: 'Your email has been confirmed' });
     res.redirect('/account');
 
-  } catch(err){
+  } catch(err) {
     console.log(err);
+
     return next(err);
+
   }
+
 };
 
 /**
- * GET /forgot
+ * `GET` `/forgot`
+ * 
  * Forgot Password page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getForgot = (req, res) => {
 
-  if(!forgotEmailFunctionalityOn){
+  if (!forgotEmailFunctionalityOn) {
+
     return res.send('email functionality off');
+
   }
 
   // if person already logged in send to default page
-  if(req.isAuthenticated()){
+  if ( req.isAuthenticated() ) {
+
     return res.redirect('/');
+
   }
 
   res.render('account/forgot', {
@@ -887,17 +976,27 @@ exports.getForgot = (req, res) => {
 };
 
 /**
- * GET /account/unlink/:provider
+ * `GET` `/account/unlink/:provider`
+ * 
  * Unlink OAuth provider.
+ * @param {express.Request} req
+ * @param {express.Response} res
+ * @param {express.NextFunction} next
  */
 exports.getOauthUnlink = (req, res, next) => {
   const provider = req.params.provider;
+
   User.findById(req.user.id, (err, user) => {
+
     if(err){ return next(err); }
+
     user[provider] = undefined;
     user.tokens = user.tokens.filter(token => token.kind !== provider);
+
     user.save((err) => {
+
       if(err){ return next(err); }
+
       req.flash('info', { msg: `${provider} account has been unlinked.` });
       res.redirect('/account');
     });
@@ -905,12 +1004,18 @@ exports.getOauthUnlink = (req, res, next) => {
 };
 
 /**
- * GET /login
+ * `GET` `/login`
+ * 
  * Login page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getLogin = (req, res) => {
-  if(req.user){
+
+  if (req.user) {
+
     return res.redirect('/');
+
   }
 
   res.render('account/login', {
@@ -920,8 +1025,11 @@ exports.getLogin = (req, res) => {
 };
 
 /**
- * GET /live/$user
- * Livestream account page
+ * `GET` `/live/$user`
+ * 
+ * Livestream account page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.livestreaming = async(req, res) =>
 
@@ -975,8 +1083,11 @@ exports.livestreaming = async(req, res) =>
 };
 
 /**
- * GET /importer
+ * `GET` `/importer`
+ * 
  * Importer page.
+ * @param {express.Request} req
+ * @param {express.Response} res
  */
 exports.getImporter = (req, res) => {
 

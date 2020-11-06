@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
+
 const categoriesConfig = require('../config/categories');
-
 const { getAllCategories, getAllSubcategories } = require('../lib/helpers/categories');
-
 const javascriptTimeAgo = require('javascript-time-ago');
 javascriptTimeAgo.locale(require('javascript-time-ago/locales/en'));
 require('javascript-time-ago/intl-messageformat-global');
 require('intl-messageformat/dist/locale-data/en');
-const timeAgoEnglish = new javascriptTimeAgo('en-US');
 
+const timeAgoEnglish = new javascriptTimeAgo('en-US');
 const domainNameAndTLD = process.env.DOMAIN_NAME_AND_TLD;
 
 const uploadSchema = new mongoose.Schema({
@@ -18,8 +17,7 @@ const uploadSchema = new mongoose.Schema({
   originalFileName: String,
   fileExtension: String,
 
-  // should be in the format of https://domain.com/path, and will have the channelUrl and unique tag added in media.pug,
-  // such as https://domain.com/path/$channelUrl/$uniqueTag.$fileExtension
+  /** Should be in the format of `https://domain.com/path`, and will have the channelUrl and unique tag added in `media.pug`, such as `https://domain.com/path/$channelUrl/$uniqueTag.$fileExtension` .*/
   uploadServer: { type: String },
 
   // viralServer follows the same pattern as uploadServer (https://domain.com/path/) and supercedes uploadServer
@@ -52,7 +50,13 @@ const uploadSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  visibility: { type: String, enum: ['public', 'unlisted', 'private', 'removed', 'pending'], default: 'public' },
+
+  visibility: { 
+    type: String, 
+    enum: ['public', 'unlisted', 'private', 'removed', 'pending'], 
+    default: 'public' 
+  },
+
   thumbnailUrl: 'String',  // TODO: can eventually delete this
   customThumbnailUrl: 'String', // TODO: can eventually delete this
   uploadUrl: 'String',
@@ -78,15 +82,18 @@ const uploadSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Comment'
   }],
-
-  // data from the Youtube API
-  // TODO : rename to indicate it's the youtube api
+ 
+  /** 
+   * Data from the Youtube API.
+   * 
+   * TODO: rename to indicate it's the youtube api.
+   */
   youTubeData: mongoose.Schema.Types.Mixed,
 
-  // data from youtubeDL
+  /** Data from `youtube-dl`. */
   youTubeDLData: mongoose.Schema.Types.Mixed,
 
-  // TODO: this should be an enum
+  /** TODO: this should be an enum. */
   status: String,
   sensitive: {
     type: Boolean,
@@ -131,7 +138,7 @@ const uploadSchema = new mongoose.Schema({
 
   processingCompletedAt: Date,
 
-  // string, such as UnIqUe.webvtt used by default to indicate it's in the same directory with the upload
+  /** String, such as `UnIqUe.webvtt` used by default to indicate it's in the same directory with the upload. */
   webVTTPath: String,
 
   ffprobeData: mongoose.Schema.Types.Mixed
@@ -150,33 +157,36 @@ const uploadSchema = new mongoose.Schema({
 const oneHourAmount =  1000 * 60 * 60;
 const oneDayAmount =  1000 * 60 * 60 * 24;
 
-uploadSchema.virtual('uploadServerUrl').get(function(){
+uploadSchema.virtual('uploadServerUrl').get( function(){
 
   let uploadServerUrl;
 
-  if(process.env.NODE_ENV == 'development'){
+  if (process.env.NODE_ENV == 'development') {
     uploadServerUrl = '/uploads';
   } else {
     uploadServerUrl = `https://${this.uploadServer}.${domainNameAndTLD}`;
   }
 
   return uploadServerUrl;
+
 });
 
-uploadSchema.virtual('thumbnail').get(function(){
+uploadSchema.virtual('thumbnail').get( function(){
 
   // order of importance: custom, then generated, then medium
   const thumbnail =  this.thumbnails.custom ||  this.thumbnails.generated ||  this.thumbnails.medium;
 
   return thumbnail;
+
 });
 
-uploadSchema.virtual('lessThan1hOld').get(function(){
+uploadSchema.virtual('lessThan1hOld').get( function(){
 
   const timeDiff = new Date() - this.createdAt;
   const timeDiffInH = timeDiff / oneHourAmount;
 
   return timeDiffInH > 1;
+
 });
 
 uploadSchema.virtual('lessThan24hOld').get(function(){
@@ -185,6 +195,7 @@ uploadSchema.virtual('lessThan24hOld').get(function(){
   const timeDiffInH = timeDiff / oneHourAmount;
 
   return timeDiffInH > 24;
+
 });
 
 uploadSchema.virtual('lessThan24hOld').get(function(){
@@ -193,64 +204,79 @@ uploadSchema.virtual('lessThan24hOld').get(function(){
   const timeDiffInH = timeDiff / oneHourAmount;
 
   return timeDiffInH > 24;
+
 });
 
 // TODO: eventually this can be simplified because we won't support createdAt anymore
 // can also be simplified in caching
-uploadSchema.virtual('timeAgo').get(function(){
+uploadSchema.virtual('timeAgo').get( function(){
 
   return timeAgoEnglish.format( new Date(this.processingCompletedAt || this.createdAt) );
+
 });
 
-uploadSchema.virtual('viewsWithin1hour').get(function(){
+uploadSchema.virtual('viewsWithin1hour').get( function() {
 
-  let realViews = _.filter(this.checkedViews, function(view){
+  let realViews = _.filter(this.checkedViews, function(view) {
     return view.validity == 'real' && view.createdAt > ( new Date() - oneHourAmount );
   });
 
   return realViews.length;
+
 });
 
 uploadSchema.virtual('viewsWithin24hour').get(function(){
 
-  let realViews = _.filter(this.checkedViews, function(view){
+  let realViews = _.filter(this.checkedViews, function(view) {
     return view.validity == 'real' && view.createdAt > ( new Date() - oneDayAmount );
   });
 
   return realViews.length;
+
 });
 
-uploadSchema.virtual('viewsWithin1week').get(function(){
+uploadSchema.virtual('viewsWithin1week').get( function() {
 
-  let realViews = _.filter(this.checkedViews, function(view){
+  let realViews = _.filter(this.checkedViews, function(view) {
+
     return view.validity == 'real' && view.createdAt > ( new Date() - oneDayAmount * 7 );
+
   });
 
   return realViews.length;
+
 });
 
-uploadSchema.virtual('viewsWithin1month').get(function(){
+uploadSchema.virtual('viewsWithin1month').get( function() {
 
-  let realViews = _.filter(this.checkedViews, function(view){
+  let realViews = _.filter(this.checkedViews, function(view) {
+
     return view.validity == 'real';
+
   });
 
   return realViews.length;
+
 });
 
-uploadSchema.virtual('viewsAllTime').get(function(){
+uploadSchema.virtual('viewsAllTime').get( function() {
 
-  let realViews = _.filter(this.checkedViews, function(view){
+  let realViews = _.filter(this.checkedViews, function(view) {
+
     return view.validity == 'real' && ( new Date() - oneDayAmount * 365 );
+
   });
 
   return realViews.length;
+
 });
 
-uploadSchema.virtual('legitViewAmount').get(function(){
+uploadSchema.virtual('legitViewAmount').get( function() {
 
-  const realViews = _.filter(this.checkedViews, function(view){
+  const realViews = _.filter(this.checkedViews, function(view) {
+
     return view.validity == 'real';
+
   });
 
   let legitViews = this.views + realViews.length;
@@ -260,11 +286,14 @@ uploadSchema.virtual('legitViewAmount').get(function(){
   const timeDiffInH = timeDiff / ( 1000 * 60 * 60);
 
   // cap views to 300
-  if(timeDiffInH < 24 && legitViews > 300){
+  if (timeDiffInH < 24 && legitViews > 300) {
+
     return 300;
+
   }
 
   return legitViews;
+  
 });
 
 uploadSchema.index({sensitive: 1, visibility: 1, status: 1, createdAt: -1, category: 1}, {name: 'All Media List'});
