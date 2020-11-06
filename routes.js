@@ -283,7 +283,7 @@ function frontendRoutes(app){
   app.get('/importer', accountFrontendController.getImporter);
   app.post('/importer', accountBackendController.postImporter);
 
-  /** Account Pages **/
+  /* Account Pages */
   app.get('/account', passportConfig.isAuthenticated, accountFrontendController.getAccount);
   app.get('/account/viewHistory', passportConfig.isAuthenticated, accountFrontendController.getViewHistory);
   app.get('/account/reactHistory', passportConfig.isAuthenticated, accountFrontendController.getReactHistory);
@@ -309,7 +309,7 @@ function frontendRoutes(app){
   // save user's youtube channel id
   app.post('/account/backup', passportConfig.isAuthenticated, youtubeController.saveYouTubeChannelId);
 
-  /** ROUTE TO MODERATE PENDING VIDEOS **/
+  /* ROUTE TO MODERATE PENDING VIDEOS */
   app.get('/pending', authMiddleware.moderatorAuth, adminFrontendController.getPending);
 
   app.post('/pending', authMiddleware.moderatorAuth, adminBackendController.postPending);

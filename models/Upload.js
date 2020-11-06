@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
+const { ModelUpload } = require("../lib/jsdocTypes/index")
 const categoriesConfig = require('../config/categories');
 const { getAllCategories, getAllSubcategories } = require('../lib/helpers/categories');
 const javascriptTimeAgo = require('javascript-time-ago');
@@ -189,16 +190,7 @@ uploadSchema.virtual('lessThan1hOld').get( function(){
 
 });
 
-uploadSchema.virtual('lessThan24hOld').get(function(){
-
-  const timeDiff = new Date() - this.createdAt;
-  const timeDiffInH = timeDiff / oneHourAmount;
-
-  return timeDiffInH > 24;
-
-});
-
-uploadSchema.virtual('lessThan24hOld').get(function(){
+uploadSchema.virtual('lessThan24hOld').get( function(){
 
   const timeDiff = new Date() - this.createdAt;
   const timeDiffInH = timeDiff / oneHourAmount;
@@ -302,6 +294,7 @@ uploadSchema.index({uploader: 1, visibility: 1, status: 1, createdAt: -1}, {name
 uploadSchema.index({uploader: 1, title: 1}, {name: 'Upload Check'});
 uploadSchema.index({visibility: 1, status: 1}, {name: 'Random Upload'});
 
+/** @type ModelUpload */
 const Upload = mongoose.model('Upload', uploadSchema);
 
 module.exports = Upload;
