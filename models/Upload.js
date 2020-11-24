@@ -294,7 +294,7 @@ uploadSchema.index({uploader: 1, visibility: 1, status: 1, createdAt: -1}, {name
 uploadSchema.index({uploader: 1, title: 1}, {name: 'Upload Check'});
 uploadSchema.index({visibility: 1, status: 1}, {name: 'Random Upload'});
 
-/** @type ModelUpload */
+/** @type mongoose.Model<ModelUpload, {}> */
 const Upload = mongoose.model('Upload', uploadSchema);
 
 module.exports = Upload;

@@ -1,6 +1,4 @@
-/**
- * Module dependencies.
- */
+/* Module dependencies. */
 const express = require('express');
 const compression = require('compression');
 const session = require('express-session');
@@ -37,7 +35,7 @@ mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
 
-/** Code for clustering, running on multiple CPUS **/
+/* Code for clustering, running on multiple CPUS */
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
 
@@ -54,20 +52,15 @@ const saveAndServeFilesDirectory = settings.saveAndServeFilesDirectory;
 
 const portNumber =  process.env.PORT || 3000;
 
-if(cluster.isMaster){
+if (cluster.isMaster) {
   console.log('BOOTING APP...\n');
-
   console.log(`PLUS ENABLED: ${process.env.PLUS_ENABLED}\n`);
-
   console.log(`NODE_ENV: ${process.env.NODE_ENV}\n`);
-
   console.log(`RUNNING WITH THIS MANY PROCESSES: ${amountOfProcesses}\n`);
-
   console.log(`SAVE AND SERVE FILES DIRECTORY: ${saveAndServeFilesDirectory}\n`);
-
   console.log(`THE MOST CONTROVERSIAL UPLOAD RATING ALLOWED ON THIS INSTANCE IS: ${process.env.MAX_RATING_ALLOWED} \n`);
 
-  for(let i = 0; i < amountOfProcesses; i++){
+  for (let i = 0; i < amountOfProcesses; i++) {
     // Create a worker
     cluster.fork();
   }
@@ -84,7 +77,7 @@ if(cluster.isMaster){
   (async function(){
 
     // site visit
-    const Notification = require('./models').Notification;
+    const { Notification } = require('./models');
     const routes = require('./routes');
 
     const customMiddleware = require('./middlewares/custom');
@@ -138,15 +131,12 @@ if(cluster.isMaster){
 
     console.log('CONNECTED TO DATABASE AT: ' + mongoUri + '\n');
 
-    /** create express app **/
+    /* create express app */
     const app = express();
 
     app.use(favicon(path.join(__dirname, 'public', 'images/favicon.ico')));
 
-    /*
-     * Express configuration.
-     */
-
+    /* Express configuration. */
     app.set('port', portNumber);
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'pug');
@@ -467,13 +457,13 @@ if(cluster.isMaster){
   }
 }
 
-async function runNgrok(){
+async function runNgrok() {
 
   let ngrokOptions = {
     addr: portNumber
   };
 
-  if(process.env.NGROK_SUBDOMAIN && process.env.NGROK_AUTHTOKEN){
+  if (process.env.NGROK_SUBDOMAIN && process.env.NGROK_AUTHTOKEN) {
     ngrokOptions.authtoken = process.env.NGROK_AUTHTOKEN;
     ngrokOptions.subdomain = process.env.NGROK_SUBDOMAIN;
   }
