@@ -1,13 +1,15 @@
+include mixins
 doctype html
 html
   head
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge')
-    meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no', name='viewport')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
     meta(name='apple-mobile-web-app-capable', content='yes')
     meta(name='theme-color' content='#183793')
     meta(name='csrf-token', content=_csrf)
     meta(name="description", content=meta.description)
+    title #{title} - #{brandName}
     
     //- TODO: kind of want to remove the - Brandname, it doesn't look great
     meta(property='og:title', content=(meta.title || title))
@@ -15,38 +17,27 @@ html
     meta(property='og:description', content=meta.description)
     meta(property='og:video', content=meta.video)
 
-    // twitter meta tags
-    // trying out large card of twitter
+    //- twitter meta tags
+    //- trying out large card of twitter
     meta(name='twitter:card', content='summary_large_image')
-    //meta(name='twitter:card', content='summary')
+    //- meta(name='twitter:card', content='summary')
     meta(name='twitter:title', content=(meta.title || title))
     meta(name='twitter:description', content=meta.description || "An open-source file hosting platform")
     meta(name='twitter:image', content=meta.image)
 
-    title #{title} - #{brandName}
-    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.33.1/dist/sweetalert2.css')
-    link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css')
-    link(rel='stylesheet', href='/css/main.css')
+
     link(rel='shortcut icon', href='/favicon.ico')
     link(rel='apple-touch-icon', href='/images/app-icon-512x512.png')
     link(rel='manifest', href='/manifest.json')
     link(rel='alternate', type='application/rss+xml', href='/media/recent/rss')
-    link(href='https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css', rel='stylesheet')
-    block extra_css
 
-    script(src='/js/lib/jquery-3.1.1.min.js')
-    script(src='/js/lib/bootstrap.min.js')
-
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js")
-    script(src='https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/balance-text/3.2.0/balancetext.min.js')
-    script(src='https://cdn.jsdelivr.net/npm/sweetalert2@7.33.1/dist/sweetalert2.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/enquire.js/2.0.1/enquire.min.js')
-      
-    link(rel='stylesheet', href='/css/loading-bar.css')
-    script(src='/js/loading-bar.js')
-
+    block styles
+      link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@7.33.1/dist/sweetalert2.css')
+      link(rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css')
+      link(rel='stylesheet', href='https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css')
+      link(rel='stylesheet', href='/css/loading-bar.css')
+      link(rel='stylesheet', href='/css/main.css')
+    
     if adsenseOn
       script(data-ad-client=`${adsenseId}` async='' src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
 
@@ -54,22 +45,150 @@ html
       script(src='https://www.google.com/recaptcha/api.js')
       include widgets/recaptcha
 
-    block extra_js
+    block scripts
+      script(src='/js/lib/jquery-3.1.1.min.js')
+      script(src='/js/lib/bootstrap.min.js')
 
+      script(src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js")
+      script(src='https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js')
+      script(src='https://cdnjs.cloudflare.com/ajax/libs/balance-text/3.2.0/balancetext.min.js')
+      script(src='https://cdn.jsdelivr.net/npm/sweetalert2@7.33.1/dist/sweetalert2.js')
+      script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js')
+      script(src='https://cdnjs.cloudflare.com/ajax/libs/enquire.js/2.0.1/enquire.min.js')
+      script(src='/js/loading-bar.js')
+      script(src='/js/main.js' defer)
+      script(src="/js/header.js" defer)
+      script.
+        $(document).ready(function () {
 
-  body(style="overflow-x:hidden;touch-action: manipulation;" id="body" class="dark-mode")
+          console.log('lets')
 
+          var orderBy = '#{orderBy}'
+          var mediaType = '#{mediaType}'
+          var searchQuery = '#{searchQuery}'
+          var searchType = '#{searchType}' // upload or user
 
+          console.log(orderBy, mediaType, searchQuery, searchType)
+
+          if (!orderBy) {
+            orderBy = 'newToOld'
+          }
+
+          console.log(orderBy, mediaType, searchQuery, searchType)
+
+          // $('.search-query-input').focus();
+
+          // TODO: how to capture enter from input
+          $(".search-query-input").on('keyup', function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+              var userSearchQuery = $('.search-query-input').val()
+
+              window.location = '/search?orderBy=' + orderBy + '&mediaType=' + mediaType + '&searchQuery=' + userSearchQuery + '&searchType=' + searchType
+              // Do something
+            }
+          });
+
+          // capture submit
+          $('.search-uploads-button').click(function () {
+
+            var userSearchQuery = $('.search-query-input').val()
+
+            window.location = '/search?orderBy=' + orderBy + '&mediaType=' + mediaType + '&searchQuery=' + userSearchQuery + '&searchType=' + searchType
+          });
+
+        });
+      if !user
+        script.
+          $('.subscribed-link').on('release click', function(e){
+            e.preventDefault();
+
+            swal({
+              text: "Please register to subscribe to content",
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sign Up Now'
+            }).then(function (result) {
+              if (result.value) {
+                window.location.href = "/signup";
+              }
+            })
+          })
+
+  body()
     include nodeTubeCss
+    //- fix the script in the `media.pug` to get rid of `.headerContainer`
+    header.container.headerContainer
+      //-.search1
+      //-    form.search-form
+      //-        input(type='text', placeholder='Search for books, authors, categories and more..')
+      //-        input(type='submit', value='Submit')
+
+      div.secondLine
+        button.hamburgerDropdown(onclick='toggleNav()')
+          img(src="/images/white-burger.jpg")
+        a(href="/")
+          p.fullTitle #{brandName}
+          p.singleLetter #{brandName}
+
+        div.searchPlaceHolder
+          button
+            i.fas.fa-search.searchExpander.searchExpanderButton
+            i.fas.fa-arrow-left.searchExpander.backButtonIcon
+
+        div.search-bar
+          input(type='hidden', name='_csrf', value=_csrf)
+          input.search-query-input(type='text', placeholder=`${  searchQuery !== undefined ? searchQuery : 'Search'   }` name='searchValue' value="")
+          button.search-uploads-button.searchButton(type="submit")
+            i.fas.fa-search.searchIcon
+
+        //- UPGRADE ICON
+        //- button Upgrade
+
+        if !user
+          a.diceIcon(href="/random")
+            i.fas.fa-random(aria-hidden="true")
+
+          //-a(href="/random" style="background-color:white;right:121px;")
+          //-  div.signInDiv(style="")
+          //-    i.fas.fa-dice
+
+          a(href="/login" style="")
+            div.signInDiv Sign In
+
+        if user
+          a.diceIcon(href="/random")
+            i.fas.fa-random(aria-hidden="true")
+
+            //- img(src="/images/random.png")
+
+          //- BELL ICON
+          //- button
+          //-   img(src="/bell-angle.png")
 
 
-    //layout.pug
-    include layoutPartials/header
+          a(href="/upload")
+            div.postButton(data-toggle='modal', data-target='#exampleModal') Upload
+              //- a(href="/donate")
 
-    // I feel like this is here and breaks if you move it
+          a(href="/upload")
+            div.postIcon
+              i.fas.fa-upload.uploadButton
+
+            //- div.postIcon(data-toggle='modal', data-target='#exampleModal')
+            //-  img(src="/images/whiteDollarIcon.png")
+            //-  p Post
+
+          button.userImage
+            if user.customThumbnail
+              img(onclick='toggleAccount()' src=`${uploadServer}/${user.channelUrl}/${user.customThumbnail}`)
+            else
+              img(onclick='toggleAccount()' src=`/images/default_user_image.png`)
+              //- img.center-block.text-center(onclick='toggleAccount()' src=`${uploadServer}/${user._id}/unique.png`)
+
+    //- I feel like this is here and breaks if you move it
     include viewPartials/darkLightMode
 
-    .container(style="max-width:1250px;padding-left: 0px; padding-right: 0px;margin-top:3px;")
+    main#maincontent
       include layoutPartials/sidebar
 
       include layoutPartials/flash
@@ -77,17 +196,13 @@ html
 
     include layoutPartials/footer
 
-    if zopimOn
-      include widgets/zopim
+      if zopimOn
+        include widgets/zopim
 
-    if googleAnalyticsOn
-      include widgets/google-analytics
-
-
-    script(src='/js/main.js')
+      if googleAnalyticsOn
+        include widgets/google-analytics
 
     block extra_footer_js
-
       script.
         var accountOpen = false;
 
@@ -105,23 +220,22 @@ html
           }
         }
 
-
       script.
-          var sidebarClosed = true;
+        var sidebarClosed = true;
 
-          function toggleNav() {
-            if (sidebarClosed) {
-              document.getElementById("mySidebar").style.width = "253px";
-              // document.getElementById("main").style.marginLeft = "253px";
+        function toggleNav() {
+          if (sidebarClosed) {
+            document.getElementById("mySidebar").style.width = "253px";
+            // document.getElementById("main").style.marginLeft = "253px";
 
-              sidebarClosed = false;
-            } else if (!sidebarClosed) {
-              document.getElementById("mySidebar").style.width = "0";
-              // document.getElementById("main").style.marginLeft = "0";
+            sidebarClosed = false;
+          } else if (!sidebarClosed) {
+            document.getElementById("mySidebar").style.width = "0";
+            // document.getElementById("main").style.marginLeft = "0";
 
-              sidebarClosed = true;
-            }
+            sidebarClosed = true;
           }
+        }
 
     //script.
     //  $.magneticScroll({
