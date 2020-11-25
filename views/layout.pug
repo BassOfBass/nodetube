@@ -100,47 +100,37 @@ html
 
   body
     //- fix the script in the `media.pug` to get rid of `.headerContainer`
-    header.container.headerContainer
-      //-.search1
-      //-    form.search-form
-      //-        input(type='text', placeholder='Search for books, authors, categories and more..')
-      //-        input(type='submit', value='Submit')
+    header.container.headerContainer.gheader
+      ul.gtop
+        li
+          a.glogo(href="/") #{brandName}
+        li
+          //- button.searchPlaceHolder
+          //-   i.fas.fa-search.searchExpander.searchExpanderButton
+          //-   i.fas.fa-arrow-left.searchExpander.backButtonIcon
 
-      div.secondLine
-        button.hamburgerDropdown(onclick='toggleNav()')
-          img(src="/images/white-burger.jpg")
-        a(href="/")
-          p.fullTitle #{brandName}
-          p.singleLetter #{brandName}
+          form.search-bar.gsearch
+            input(type='hidden', name='_csrf', value=_csrf)
+            input.search-query-input(type='search', name='searchValue' value=`${searchQuery !== undefined ? searchQuery : ''}`)
+            button.search-uploads-button.searchButton(type="submit")
+              span.fas.fa-search
 
-        div.searchPlaceHolder
-          button
-            i.fas.fa-search.searchExpander.searchExpanderButton
-            i.fas.fa-arrow-left.searchExpander.backButtonIcon
-
-        div.search-bar
-          input(type='hidden', name='_csrf', value=_csrf)
-          input.search-query-input(type='text', placeholder=`${  searchQuery !== undefined ? searchQuery : 'Search'   }` name='searchValue' value="")
-          button.search-uploads-button.searchButton(type="submit")
-            i.fas.fa-search.searchIcon
-
-        //- UPGRADE ICON
-        //- button Upgrade
+      nav.gnav
+        div
+          button.hamburgerDropdown(onclick='toggleNav()')
+            img(src="/images/white-burger.jpg", width="40")      
+        div
+          a(href="/random")
+            span.fas.fa-random(aria-hidden="true")
+            |
+            | Random
 
         if !user
-          a.diceIcon(href="/random")
-            i.fas.fa-random(aria-hidden="true")
-
-          //-a(href="/random" )
-          //-  div.signInDiv(style="")
-          //-    i.fas.fa-dice
-
-          a(href="/login" style="")
-            div.signInDiv Sign In
-
-        if user
-          a.diceIcon(href="/random")
-            i.fas.fa-random(aria-hidden="true")
+          div.signInDiv
+            a(href="/login")
+              span.fas.fa-sign-in-alt(aria-hidden="true")
+              |
+              | Sign In
 
             //- img(src="/images/random.png")
 
@@ -148,25 +138,20 @@ html
           //- button
           //-   img(src="/bell-angle.png")
 
-
-          a(href="/upload")
-            div.postButton(data-toggle='modal', data-target='#exampleModal') Upload
-              //- a(href="/donate")
-
-          a(href="/upload")
-            div.postIcon
-              i.fas.fa-upload.uploadButton
-
-            //- div.postIcon(data-toggle='modal', data-target='#exampleModal')
-            //-  img(src="/images/whiteDollarIcon.png")
-            //-  p Post
-
-          button.userImage
-            if user.customThumbnail
-              img(onclick='toggleAccount()' src=`${uploadServer}/${user.channelUrl}/${user.customThumbnail}`)
-            else
-              img(onclick='toggleAccount()' src=`/images/default_user_image.png`)
-              //- img.center-block.text-center(onclick='toggleAccount()' src=`${uploadServer}/${user._id}/unique.png`)
+        div
+          a.postButton.postIcon(href="/upload", data-toggle='modal', data-target='#exampleModal')
+            span.fas.fa-upload
+            |
+            | Upload
+              
+        if user
+          div
+            button.userImage
+              if user.customThumbnail
+                img(onclick='toggleAccount()' src=`${uploadServer}/${user.channelUrl}/${user.customThumbnail}`)
+              else
+                img(onclick='toggleAccount()' src=`/images/default_user_image.png`)
+                //- img.center-block.text-center(onclick='toggleAccount()' src=`${uploadServer}/${user._id}/unique.png`)
 
     //- dark/light mode switch
     script.
