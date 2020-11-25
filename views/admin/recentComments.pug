@@ -71,7 +71,7 @@ block content
                                     p(style="width:80%;margin:0 auto;margin-top:10px;") #{comment.text} &nbsp  -#{comment.commenter.channelName || comment.commenter.channelUrl}
 
 
-block extra_footer_js
+append footer
     script.
       $(document).on({
         mouseenter: function () {

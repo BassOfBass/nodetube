@@ -48,7 +48,6 @@ html
     block scripts
       script(src='/js/lib/jquery-3.1.1.min.js')
       script(src='/js/lib/bootstrap.min.js')
-
       script(src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js")
       script(src='https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js')
       script(src='https://cdnjs.cloudflare.com/ajax/libs/balance-text/3.2.0/balancetext.min.js')
@@ -97,25 +96,9 @@ html
           });
 
         });
-      if !user
-        script.
-          $('.subscribed-link').on('release click', function(e){
-            e.preventDefault();
+      
 
-            swal({
-              text: "Please register to subscribe to content",
-              type: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Sign Up Now'
-            }).then(function (result) {
-              if (result.value) {
-                window.location.href = "/signup";
-              }
-            })
-          })
-
-  body()
-    include nodeTubeCss
+  body
     //- fix the script in the `media.pug` to get rid of `.headerContainer`
     header.container.headerContainer
       //-.search1
@@ -148,7 +131,7 @@ html
           a.diceIcon(href="/random")
             i.fas.fa-random(aria-hidden="true")
 
-          //-a(href="/random" style="background-color:white;right:121px;")
+          //-a(href="/random" )
           //-  div.signInDiv(style="")
           //-    i.fas.fa-dice
 
@@ -185,16 +168,113 @@ html
               img(onclick='toggleAccount()' src=`/images/default_user_image.png`)
               //- img.center-block.text-center(onclick='toggleAccount()' src=`${uploadServer}/${user._id}/unique.png`)
 
-    //- I feel like this is here and breaks if you move it
-    include viewPartials/darkLightMode
+    //- dark/light mode switch
+    script.
+      /** colors **/
+      var blueNavbarHeader = "rgb(24,55,147)";
+      var blackNavbarHeader = "#1c1c1c";
+
+      /** two modes : light-mode || dark-mode **/
+
+      // get current setting from localstorage
+      var darkLightInMemory = localStorage.getItem("darkLight");
+
+      // if it's not set yet set it as dark-mode
+      if(!darkLightInMemory){
+        localStorage.setItem('darkLight', 'dark-mode');
+        darkLightInMemory = 'dark-mode';
+      }
+
+      console.log(darkLightInMemory)
+
+      // get class name from the body
+      var currentClassNameOfBody = document.getElementById("body").className;
+
+      // if memory says dark mode, no need to do anything since it's set to dark by default
+      if(darkLightInMemory == 'dark-mode'){
+        document.getElementById("header-color-blue").style.backgroundColor = blackNavbarHeader;
+        // switch over
+      } else if(darkLightInMemory == 'light-mode' && currentClassNameOfBody == 'dark-mode') {
+        document.getElementById("header-color-blue").style.backgroundColor = blueNavbarHeader;
+        document.getElementById("body").className = 'light-mode';
+        // switch over
+      }
+
+      console.log(darkLightInMemory, currentClassNameOfBody);
+
+      // js that runs when button is clicked
+      function toggleDarkLight() {
+
+        var darkLightInMemory = localStorage.getItem("darkLight");
+
+        console.log(darkLightInMemory);
+
+        var body = document.getElementById("body");
+
+        // switch body.className
+        if(darkLightInMemory == 'light-mode'){
+          document.getElementById("body").className = 'dark-mode';
+        } else {
+          document.getElementById("body").className = 'light-mode';
+        }
+
+        var modeToChangeTo;
+
+        // switch body.className
+        if (darkLightInMemory == 'light-mode') {
+          modeToChangeTo = 'dark-mode'
+        } else {
+          modeToChangeTo = 'light-mode'
+        }
+
+        // set the value in localstorage
+        localStorage.setItem('darkLight', modeToChangeTo);
+
+        // change footer text
+        if (localStorage.getItem("darkLight") === "dark-mode") {
+          document.getElementById("dark-mode-button").innerHTML = "[Light Mode]"
+        } else if (localStorage.getItem("darkLight") === "light-mode") {
+          document.getElementById("dark-mode-button").innerHTML = "[Dark Mode]"
+        }
+
+
+        if (body.className === "light-mode") {
+          document.getElementById("header-color-blue").style.backgroundColor = blueNavbarHeader;
+        } else {
+          document.getElementById("header-color-blue").style.backgroundColor = blackNavbarHeader;
+        }
+      }
+
+    include layoutPartials/sidebar
+    include layoutPartials/flash
 
     main#maincontent
-      include layoutPartials/sidebar
-
-      include layoutPartials/flash
       block content
 
-    include layoutPartials/footer
+    footer.gfooter
+      block footer
+      address
+        p © 2020 #{brandName} &nbsp
+
+        a(href="https://paypal.me/newtubeapp" target="_blank") PayPal
+
+        a(href="https://twitter.com/newtube_app" target="_blank") Twitter
+
+        a(href="https://www.facebook.com/NewTube-114869126871911" target="_blank") Facebook
+
+        a(href="https://discord.gg/ejGah8H" target="_blank") Discord
+
+        a(href="https://github.com/mayeaux/nodetube" target="_blank") GitHub
+
+        a(href="https://riot.im/app/#/room/#nodetube:matrix.org" target="_blank") Riot.im
+
+        a(href="https://reddit.com/r/nodetube" target="_blank") Reddit
+
+        a(href="https://fosstodon.org/@nodetube" target="_blank") Fosstodon
+            
+        button(onclick="toggleDarkLight()" class="link-button" id="dark-mode-button" style="") [Dark Mode]
+
+        a(href="/termsofservice") Terms Of Service
 
       if zopimOn
         include widgets/zopim
@@ -202,7 +282,6 @@ html
       if googleAnalyticsOn
         include widgets/google-analytics
 
-    block extra_footer_js
       script.
         var accountOpen = false;
 
@@ -237,26 +316,49 @@ html
           }
         }
 
-    //script.
-    //  $.magneticScroll({
-    //    speed: 1
-    //  });
+      if 1==1
+        script.
+          if (document.getElementById("body").className == "dark-mode") {
+            document.getElementById("dark-mode-button").innerHTML = "[Light Mode]"
+          }
+
+      if !user
+        script.
+          $('.subscribed-link').on('release click', function(e){
+            e.preventDefault();
+
+            swal({
+              text: "Please register to subscribe to content",
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sign Up Now'
+            }).then(function (result) {
+              if (result.value) {
+                window.location.href = "/signup";
+              }
+            })
+          })
+
+    //- script.
+    //-   $.magneticScroll({
+    //-     speed: 1
+    //-   });
 
 
-    //script.
-    //
-    //  $(document).ready(function () {
-    //    $("body").niceScroll({
-    //      cursorcolor: "aquamarine",
-    //      cursorwidth: "16px",
-    //      'zindex' : 999999999999999,
-    //      scrollspeed: 1,
-    //      smoothscroll: true,
-    //      mousescrollstep: 38
-    //    });
-    //
-    //
-    //  });
+    //- script.
+    //- 
+    //-   $(document).ready(function () {
+    //-     $("body").niceScroll({
+    //-       cursorcolor: "aquamarine",
+    //-       cursorwidth: "16px",
+    //-       'zindex' : 999999999999999,
+    //-       scrollspeed: 1,
+    //-       smoothscroll: true,
+    //-       mousescrollstep: 38
+    //-     });
+    //- 
+    //- 
+    //-   });
 
 
 
