@@ -14,7 +14,6 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const expressValidator = require('express-validator');
 const expressStatusMonitor = require('express-status-monitor');
-const sass = require('node-sass-middleware');
 const timeout = require('connect-timeout');
 const favicon = require('serve-favicon');
 const useragent = require('express-useragent');
@@ -148,10 +147,6 @@ if (cluster.isMaster) {
     }));
 
     app.use(compression());
-    app.use(sass({
-      src: path.join(__dirname, 'public'),
-      dest: path.join(__dirname, 'public')
-    }));
 
     if(process.env.SAVE_AND_SERVE_FILES == 'true'){
       // TODO: there is a bug here where the user's account profile picture is being cached and doesnt appear updated, pull that out of this route (should have maxage: 0 )

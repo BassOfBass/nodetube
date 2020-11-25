@@ -6,11 +6,14 @@
 @import "lib/font-awesome/font-awesome";
 @import "themes/default/default";
 @import url('https://rsms.me/inter/inter.css');
+@import "sweetalert";
+@import "loading-bar";
+@import "kurento";
+
 /*
   `Normalize.css` is already merged into this file, almost all `//` comments on the side are from normalize
   ! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css 
 */
-
 
 /* Generic selectors */
 // only rules applying to base tags and their pseudo-selectors/elements go there
