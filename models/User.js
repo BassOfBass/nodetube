@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
+
 var Schema = mongoose.Schema;
 
 const defaultMaxSizeUpload = process.env.DEFAULT_MAX_UPLOAD_SIZE_IN_MB || 500;
@@ -67,14 +68,22 @@ const userSchema = new mongoose.Schema({
     ref: 'Upload'
   }],
 
-  // privileges
+  /** 
+   * Privileges.
+   */
   privs : {
-    // allow user to be trusted and not need moderation
+
+    /** 
+     * Allow user to be trusted and not need moderation. 
+     */
     autoVisibleUpload: {
       type: Boolean,
       default: false
     },
-    // automatically mirror uploads from youtube
+
+    /** 
+     * Automatically mirror uploads from youtube. 
+     */
     mirrorFunctionality: {
       type: Boolean,
       default: false
@@ -99,7 +108,10 @@ const userSchema = new mongoose.Schema({
       type: Number,
       default: defaultMaxSizeUpload
     },
-    // if the user is alowed to make SFW uploads (can remove priv for users who don't mark properly)
+
+    /** 
+     * If the user is alowed to make SFW uploads (can remove priv for users who don't mark properly).
+     */
     safeForWorkUpload: {
       type: Boolean,
       default: true
@@ -158,10 +170,14 @@ const userSchema = new mongoose.Schema({
     facebook: String
   },
 
-  // TODO: horrific name, should rename to indicate its the backblaze response
+  /**
+   * TODO: horrific name, should rename to indicate its the backblaze response.
+   */
   thumbnailUrl: String,
 
-  /** such as `user-thumbnail${fileExtension}`; **/
+  /**  
+   * Such as `user-thumbnail${fileExtension}`;
+   */
   customThumbnail: String,
 
   uploadToken: String,
@@ -222,11 +238,23 @@ const userSchema = new mongoose.Schema({
  */
 userSchema.pre('save', function save(next){
   const user = this;
-  if(!user.isModified('password')){ return next(); }
+
+  if (!user.isModified('password')) { 
+    return next(); 
+  }
+
   bcrypt.genSalt(10, (err, salt) => {
-    if(err){ return next(err); }
+
+    if (err) { 
+      return next(err); 
+    }
+
     bcrypt.hash(user.password, salt, null, (err, hash) => {
-      if(err){ return next(err); }
+
+      if (err) { 
+        return next(err); 
+      }
+
       user.password = hash;
       next();
     });
@@ -245,13 +273,18 @@ userSchema.methods.comparePassword = function comparePassword(candidatePassword,
 /**
  * Helper method for getting user's gravatar.
  */
-userSchema.methods.gravatar = function gravatar(size){
+userSchema.methods.gravatar = function gravatar(size) {
+
   if(!size){
     size = 200;
   }
+
   if(!this.email){
+
     return`https://gravatar.com/avatar/?s=${size}&d=retro`;
+
   }
+
   const md5 = crypto.createHash('md5').update(this.email).digest('hex');
   return`https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };

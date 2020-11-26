@@ -1,7 +1,13 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
 
-const inviteSchema = new Schema({
-  code: String,
+const { ModelInvite } = require("../lib/jsdocTypes/index");
+
+const inviteSchema = new mongoose.Schema({
+  code: { 
+    type: String, 
+    unique: true,
+  },
+
   expirationDate: Date,
   usesLeft: Number,
 
@@ -9,7 +15,7 @@ const inviteSchema = new Schema({
    * The person creating the invite.
    */
   creator: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },
 
@@ -17,12 +23,15 @@ const inviteSchema = new Schema({
    * All users who entered the invite.
    */
   guests: [{
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   }]
 
 }, { timestamps: true });
 
-const Invite = model("Invite", inviteSchema);
+/**
+ * @type mongoose.Model<ModelInvite, {}>
+ */
+const Invite = mongoose.model("Invite", inviteSchema);
 
 module.exports = Invite;

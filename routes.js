@@ -346,6 +346,7 @@ function frontendRoutes(app){
   app.get('/admin/notifications', authMiddleware.adminAuth, adminFrontendController.getNotificationPage);
   app.get('/admin/adminAudit', authMiddleware.adminAuth, adminFrontendController.getAdminAudit);
   app.get('/admin/adminAudit/:page', authMiddleware.adminAuth, adminFrontendController.getAdminAudit);
+  app.get("/admin/invites", authMiddleware.adminAuth, adminFrontendController.getInvitesPage);
 
   /** SOCIAL MEDIA ENDPOINTS **/
   app.get('/admin/createSocialPost', authMiddleware.adminAuth, socialMediaFrontendController.getCreateSocialPost);

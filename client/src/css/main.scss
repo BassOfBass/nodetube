@@ -8,7 +8,6 @@
 @import url('https://rsms.me/inter/inter.css');
 @import "sweetalert";
 @import "loading-bar";
-@import "kurento";
 
 /*
   `Normalize.css` is already merged into this file, almost all `//` comments on the side are from normalize
@@ -162,6 +161,11 @@ h6 {
 /* END Content sectioning */
 
 /* Text content */
+
+blockquote {
+  font-style: italic;
+  quotes: "«" "»" "‹" "›";
+}
 
 // Set consistent line height across several text elements 
 p,
@@ -1067,15 +1071,15 @@ button {
 .plyr.plyr--video {
   resize: both;
 
-  /*0.2*/
-  /*max-width: 97.5vw;*/
-  /*max-height: 98vh;*/
+  // 0.2
+  // max-width: 97.5vw;
+  // max-height: 98vh;
 
-  /*height: 82vh;*/
+  // height: 82vh;
 
-  /* 0.1 */
-  /*width: 1409px;*/
-  /*height: 799px;*/
+  // 0.1 
+  // width: 1409px;
+  // height: 799px;
 }
 
 .brandName {
@@ -1091,3 +1095,37 @@ button {
   /* turning off the border */
   /*border: 1px solid #5b5a5a;*/
 }
+
+/* invites.pug */
+
+section.invites {
+
+  & > .controls {
+    text-align: center;
+  }
+
+  & > .invitecard {
+    border-radius: 1em;
+    border: 2px solid var(--colour0-primary);
+    padding: 0.5em;
+
+    & > .guests {
+      border-top: 1px solid var(--colour0-primary);
+      padding: 0;
+
+      & > .guestlist {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+        align-items: center;
+
+        & > .guestcard {
+          border-radius: 5px;
+          border: 1px solid var(--colour0-primary);
+        }
+      }
+    }
+  }
+}
+
+/* END invites.pug */

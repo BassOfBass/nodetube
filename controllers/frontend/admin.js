@@ -1,4 +1,4 @@
-const express = require("express"); // only for soft-typing
+const express = require("express"); // JSDoc types only
 const redisClient = require('../../config/redis');
 const _ = require('lodash');
 const {
@@ -8,7 +8,8 @@ const {
   Subscription,
   React,
   Comment,
-  SiteVisit
+  SiteVisit,
+  Invite
 } = require('../../models/index');
 const pagination = require('../../lib/helpers/pagination');
 
@@ -16,34 +17,18 @@ const { uploadServer} = require('../../lib/helpers/settings');
 
 let viewStats, uploadStats, userStats, reactStats, subscriptionStats, searchStats, commentStats, siteVisitStats;
 
-/**
- * 
- */
-async function getStats(){
-  let views = await redisClient.getAsync('dailyStatsViews');
-  let uploads = await redisClient.getAsync('dailyStatsUploads');
-  let users = await redisClient.getAsync('dailyStatsUsers');
-  let reacts = await redisClient.getAsync('dailyStatsReacts');
-  let subscriptions = await redisClient.getAsync('dailyStatsSubscriptions');
-  let siteVisits = await redisClient.getAsync('dailyStatsSiteVisits');
-  let comments = await redisClient.getAsync('dailyStatsComments');
-  let searches = await redisClient.getAsync('dailyStatsSearches');
-
-  searchStats = JSON.parse(searches);
-  commentStats = JSON.parse(comments);
-  siteVisitStats = JSON.parse(siteVisits);
-  userStats = JSON.parse(users);
-  reactStats = JSON.parse(reacts);
-  viewStats = JSON.parse(views);
-  subscriptionStats = JSON.parse(subscriptions);
-  uploadStats = JSON.parse(uploads);
-
-}
-
 getStats();
 setInterval( function(){
   getStats();
 }, 1000 * 60 * 1);
+
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
+exports.getAdminOverview = async(req, res) => {
+  return res.render('admin/adminOverview', {});
+};
 
 /**
  * 
@@ -341,8 +326,11 @@ exports.reacts = async(req, res) => {
   const { startingNumber, previousNumber, nextNumber, numbersArray } = pagination.buildPaginationObject(page);
 
   try {
-    const reacts = await React.find({}).populate({path: 'user upload', populate: {path: 'uploader'}})
-      .skip(skipAmount).limit(limit).sort({ _id : -1  });
+    const reacts = await React.find({}).populate({
+      path: 'user upload', 
+      populate: {path: 'uploader'}
+    })
+    .skip(skipAmount).limit(limit).sort({ _id : -1  });
 
     // console.log(reacts);
 
@@ -394,8 +382,11 @@ exports.subscriptions = async(req, res) => {
 
   try {
     const subscriptions = await Subscription.find({})
-      .populate({path: 'subscribingUser subscribedToUser drivingUpload', populate: {path: 'uploader'}})
-      .skip(skipAmount).limit(limit).sort({ _id : -1  });
+    .populate({
+      path: 'subscribingUser subscribedToUser drivingUpload',
+      populate: {path: 'uploader'}
+    })
+    .skip(skipAmount).limit(limit).sort({ _id : -1  });
 
     // console.log(subscriptions);
 
@@ -415,10 +406,63 @@ exports.subscriptions = async(req, res) => {
 
 };
 
+
+
 /**
+ * TODO: include pagination
  * @param {express.Request} req 
  * @param {express.Response} res
  */
-exports.getAdminOverview = async(req, res) => {
-  return res.render('admin/adminOverview', {});
-};
+exports.getInvitesPage = async(req, res) => {
+
+  if (!req.user || req.user.role !== 'admin') {
+    res.status(404);
+
+    return res.render('error/404', {
+      title: 'Not Found'
+    });
+
+  }
+
+  try {
+    const invites = await Invite.find({})
+    .populate({
+      path: "creator guests"
+    })
+    .sort({ createdAt: -1 }).exec()
+
+    return res.render("admin/invites", {
+      title: "Invites list",
+      invites,
+    });
+
+  } catch (error) {
+    console.log(err);
+    return res.render('error/500');
+  }
+  
+}
+
+/**
+ * 
+ */
+async function getStats(){
+  let views = await redisClient.getAsync('dailyStatsViews');
+  let uploads = await redisClient.getAsync('dailyStatsUploads');
+  let users = await redisClient.getAsync('dailyStatsUsers');
+  let reacts = await redisClient.getAsync('dailyStatsReacts');
+  let subscriptions = await redisClient.getAsync('dailyStatsSubscriptions');
+  let siteVisits = await redisClient.getAsync('dailyStatsSiteVisits');
+  let comments = await redisClient.getAsync('dailyStatsComments');
+  let searches = await redisClient.getAsync('dailyStatsSearches');
+
+  searchStats = JSON.parse(searches);
+  commentStats = JSON.parse(comments);
+  siteVisitStats = JSON.parse(siteVisits);
+  userStats = JSON.parse(users);
+  reactStats = JSON.parse(reacts);
+  viewStats = JSON.parse(views);
+  subscriptionStats = JSON.parse(subscriptions);
+  uploadStats = JSON.parse(uploads);
+
+}

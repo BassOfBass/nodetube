@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"editor.tabSize": 2,
+		"editor.foldingStrategy": "indentation",
 		"emmet.extensionsPath": "/config/emmet"
 	}
 }

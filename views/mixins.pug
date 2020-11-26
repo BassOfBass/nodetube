@@ -7,4 +7,23 @@ mixin semQuote(url, source)
     blockquote(cite=url)
       block quote
 
-mixin pagination()
+mixin pagination();
+
+mixin semArticle()
+  article
+    header
+      block header
+    section
+      block body
+    aside
+      block aside
+    footer
+      block footer
+
+//- 
+mixin semPicture(url, alt, width, height, srcset, sources)
+  a(href=url)
+    picture
+      each source of sources
+        source(src=source.src, type=source.type)
+      img(src=url, alt=alt, srcset=srcset, width=width, height=height)

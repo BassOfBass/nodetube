@@ -1,7 +1,9 @@
-const User = require('../../models/index').User;
-const Upload = require('../../models/index').Upload;
-const Comment = require('../../models/index').Comment;
-const Notification = require('../../models/index').Notification;
+const {
+  User,
+  Upload,
+  Comment,
+  Notification
+} = require('../../models/index');
 
 // const adminActions  = ['userDeleted', 'userUndeleted', 'uploadDeleted', 'fullIpDeletion', 'banUser', 'unbanUser'];
 const createAdminAction = require('../../lib/administration/createAdminAction');
