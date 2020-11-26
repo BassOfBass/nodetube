@@ -107,7 +107,7 @@ if (cluster.isMaster) {
       console.log('CACHING LOGS WILL NOT COME THROUGH \n');
     }
 
-    /** connect to MongoDB **/
+    /* connect to MongoDB */
     const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_DOCKER_URI || process.env.MONGO_URI || process.env.MONGOLAB_URI;
 
     mongoose.Promise = global.Promise;

@@ -1,3 +1,4 @@
+const express =  require("express"); //JSDoc typing
 /* Controllers (route handlers). */
 
 /* BACKEND API CONTROLLERS */
@@ -128,6 +129,9 @@ function livestreamRoutes(app){
   });
 }
 
+/**
+ * @param {express.Express} app 
+ */
 function frontendRoutes(app){
   console.log('RUNNING AS FRONTEND \n');
 

@@ -3,26 +3,24 @@ extends ../layout
 block content
   h1 Sign Up
   section
-    form.form-horizontal.signup-form(id='signup-form', method='POST')
+    form(id='signup-form', method='POST')
       input(type='hidden', name='_csrf', value=_csrf)
       //- div
-      //-   label.control-label(for='channelName') Display Name
-      //-   .col-sm-7
-      //-     input.form-control(type='text', name='channelName', id='channelName', placeholder='The name that shows up for your channel',
-      //-     autofocus, minlength=3, maxlength=25, required)
+      //-   label(for='channelName') Display Name:
+      //-   input(type='text', name='channelName', id='channelName', placeholder='The name that shows up for your channel', autofocus, minlength=3, maxlength=25, required)
       div
-        label.control-label(for='channelUrl') Channel Username:
-        input.form-control.username(type='text', name='channelUrl', id='channelUrl', autofocus, required placeholder='Please choose your channel username')
+        label(for='channelUrl') Channel Username:
+        input.username(type='text', name='channelUrl', id='channelUrl', autofocus, required placeholder='Please choose your channel username')
       div
-        label.control-label(for='password') Password
-        input.form-control.firstPasswordInput(type='password', name='password', id='password', placeholder='Please enter your password', required)
+        label(for='password') Password
+        input.firstPasswordInput(type='password', name='password', id='password', placeholder='Please enter your password', required)
       div
-        label.control-label(for='confirmPassword') Confirm Password
-        input.form-control.confirmPasswordInput(type='password', name='confirmPassword', id='confirmPassword', placeholder='Please confirm your password', required)
+        label(for='confirmPassword') Confirm Password
+        input.confirmPasswordInput(type='password', name='confirmPassword', id='confirmPassword', placeholder='Please confirm your password', required)
 
       if captchaOn == true
         div
-          label.control-label(for='captcha') Captcha
+          label(for='captcha') Captcha
           div.g-recaptcha(data-sitekey=`${recaptchaPublicKey}` id='captcha')
 
       //- var regex = new RegExp("^[a-zA-Z]+$");
@@ -37,7 +35,7 @@ block content
           | Signup
 
   script.
-    $('.signup-form').submit(function (evt) {
+    $('#signup-form').submit(function (evt) {
 
       var username = $('.username').val();
 

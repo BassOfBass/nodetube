@@ -416,7 +416,6 @@ exports.subscriptions = async(req, res) => {
 };
 
 /**
- * 
  * @param {express.Request} req 
  * @param {express.Response} res
  */

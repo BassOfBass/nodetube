@@ -8,23 +8,23 @@ block content
             input(type='hidden', name='_csrf', value=_csrf)
             //Channel URL
             .form-group
-                label.col-sm-3.control-label(for='uniqueTag') Unique Tag Or Url
+                label.col-sm-3(for='uniqueTag') Unique Tag Or Url
                 .col-sm-7
                     input(type='text', name='uniqueTag', id='uniqueTag' style="width:400px;")
 
             //Message for Channel
             .form-group
-                label.col-sm-3.control-label(for='distance') Distance (long, short or new)
+                label.col-sm-3(for='distance') Distance (long, short or new)
                 .col-sm-7
                     input(type='text' id="distance" name="distance" value="new")
 
             .form-group
-                label.col-sm-3.control-label(for='twitter') Twitter
+                label.col-sm-3(for='twitter') Twitter
                 .col-sm-7
                     input(type='checkbox' id="twitter" name="twitter" checked="true")
 
             .form-group
-                label.col-sm-3.control-label(for='facebook') Facebook
+                label.col-sm-3(for='facebook') Facebook
                 .col-sm-7
                     input(type='checkbox' id="facebook" name="facebook" checked="true")
 

@@ -739,7 +739,7 @@ block content
                         if !viewingUserIsBlocked
                             // comment form
                             div.comment-form.form-group
-                                form.form-horizontal.overall-comment-form(class="comment-form" action='/api/comment', method='post')
+                                form.overall-comment-form(class="comment-form" action='/api/comment', method='post')
                                     input(type='hidden', name='_csrf', value=_csrf)
                                     label.fw(for="comment" style="font-size:20px;") Enter Comment
                                     br
@@ -749,7 +749,7 @@ block content
                                     input.fw.btn.btn-md.btn-success.postCommentButton(type='submit' value="Post Comment" style="border-radius:4px")
                     else
                         div.comment-form.form-group.no-user-comment-form
-                            form.form-horizontal.overall-comment-form(class="comment-form")
+                            form.overall-comment-form(class="comment-form")
                                 label.fw(for="comment" style="font-size:17px;") Enter Comment
                                 br
                                 textarea.commentInput.fw(name="comment" id="comment" minlength="2" style="width:800px;height:129px;max-width:100%;background-color:#151515;color:white;")
@@ -805,7 +805,7 @@ block content
 
                                                 // container that appears after you hit Reply
                                                 div.reply-container(style="display:none")
-                                                    form.form-horizontal.reply-comment-form(class="comment-form" action='/api/comment', method='post')
+                                                    form.reply-comment-form(class="comment-form" action='/api/comment', method='post')
                                                         input(type='hidden', name='_csrf', value=_csrf)
                                                         input(type="hidden" name="upload" id="upload" value=upload._id)
                                                         input(type="hidden" name="commentId" id="commentId" value=comment.id)
@@ -826,7 +826,7 @@ block content
                                                             p.fw(style="text-align:left;") #{responseComment.text}
 
                                                         //div.reply-container(style="display:none")
-                                                        //    form.form-horizontal.reply-form(class="comment-form" action='/api/comment', method='post')
+                                                        //    form.reply-form(class="comment-form" action='/api/comment', method='post')
                                                         //        input(type='hidden', name='_csrf', value=_csrf)
                                                         //        input(type="hidden" name="upload" id="upload" value=upload._id)
                                                         //        input(type="hidden" name="commentId" id="commentId" value=responseComment.id)

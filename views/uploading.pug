@@ -1,6 +1,6 @@
 extends layout
 
-block content
+append styles
   style.
     .dropdown {
       text-align: center;
@@ -42,193 +42,136 @@ block content
     .descriptionTextArea {
       max-width:95%;
     }
-  br
-  div.center-block.text-center
-      div.upload-information(style="margin-top:20px")
-        h1(style="display:inline")
-          i.fa.fa-upload(style="display:inline")
-        h1.fw(style="display:inline") File Upload
 
-        br
-        h3.fw #{brandName} supports video, audio and image uploads
+append scripts
+  script(src='/js/lib/resumable.js' defer)
 
-        br
-        br
-        div.formats(style="max-width:500px;margin:0 auto;")
-          p(style="font-size:20px;margin-bottom:16px;") Supported File Formats
-          .row
-            .col-sm-6
-              p Video
-              p(style="line-height:35px;max-width:310px;margin:0 auto;margin-bottom:19px;") .mp4, .avi, .flv, .MOV, .m4v, .ogv, .webm, .wmv, .mkv, .mov, .m2t, .MTS, .m2ts, .MPG, .AVI, .mpg
-            .col-sm-6
-              p Audio
-              p(style="max-width:209px;margin:0 auto;margin-bottom:19px;") .mp3, .wav, .ogg, .m4a
-              p Image
-              p(style="max-width:209px;margin:0 auto;margin-bottom:19px;") .png, .jpg, .jpeg, .gif, .JPG, .PNG
+block content
+  h1 #[span.fas.fa-upload(aria-hidden="true")] File Upload
+  section
+    div.upload-information
+      p #{brandName} supports video, audio and image uploads
+      p Supported File Formats:
+      dl
+        dt Video
+        dd .mp4, .avi, .flv, .MOV, .m4v, .ogv, .webm, .wmv, .mkv, .mov, .m2t, .MTS, .m2ts, .MPG, .AVI, .mpg
+        dt Audio
+        dd .mp3, .wav, .ogg, .m4a
+        dt Image
+        dd .png, .jpg, .jpeg, .gif, .JPG, .PNG
 
+      p Your current upload file size limit is #{user.privs.uploadSize} MB (#{user.privs.uploadSize / 1000} GB)
 
-        br
+      //- h3 Select Upload
 
-        p(style="font-size:18px;margin-bottom: 10px;") Your current upload file size limit is #{user.privs.uploadSize} MB (#{user.privs.uploadSize / 1000} GB)
+      if user.plan == 'free' && plus_enabled
+        p You can raise this limit to 2000 MB by subscribing for&nbsp
+          a(href="/account?to=pt-plus") #{brandName} Plus
 
-        //h3.fw(style="font-size: 30px;") Select Upload
+      if site_rating
+        p Graphic violence, content that uses racial epithets, and overtly sexual content must be marked as Not Safe For Work
+        p Shocking content must be marked as sensitive.
+        p Not properly marking content as mature may result in a restriction of rating content as Safe For Work
 
-        if user.plan == 'free' && plus_enabled
-          p You can raise this limit to 2000 MB by subscribing for&nbsp
-            a(href="/account?to=pt-plus") #{brandName} Plus
-
-        if site_rating
-
-          br
-          p Graphic violence, content that uses racial epithets, and overtly sexual content must be marked as Not Safe For Work
-          p Shocking content must be marked as sensitive.
-          p Not properly marking content as mature may result in a restriction of rating content as Safe For Work
+      //- TODO: rewrite in proper `input(type="file")` format
+      form.upload-form
+        .center-block.text-center
+          a.resumable-browse
+            button.btn.btn-success.resumable-browser Select File
+          h3 OR
+          div#dropTarget(style="")
+            img(src="/images/fixed.png" style="width:350px;")
 
 
-      .row
-        .col-sm-12
+          div(id="scrollTo")
 
+          h3(style="font-size:30px;margin-bottom:15px;" id="uploadDetails") Upload Details
 
+          label(style="font-size: 23px;" for='title') Title (*)
+          input.center-block.text-center(style="max-width:600px;height:35px;border-radius:2px;font-size:20px;font-weight:300;" type="text" name="title" id="title" minlength=3, maxlength=100 required)
 
+          //- add endpoint for visibility
+          if user.plan == 'plus'
+            fieldset
+              legend Visibility
+              div
+                input#public(type='radio', name='visibility' value="public" checked)
+                label(for="public") Public
+              div
+                input#unlisted(type='radio', name='visibility' value="unlisted")
+                label(for="unlisted") Unlisted
+              div
+                input#private(type='radio', name='visibility' value="private")
+                label(for="private") Private
 
-          div.upload-form
+          label(for='title' style="font-size:20px") Select A Category
 
-              .upload-form
-                .form-group.center-block.text-center
-                  br
-                  a.resumable-browse
-                      button.fw.btn.btn-success.resumable-browser(style="font-size:19px;margin-bottom:-9px;border-radius:5px;") Select File
+          div.dropdown(style="display:inline;padding-right:15px;")
+            button#dropdownMenu1.btn.btn-primary.dropdown-toggle(type='button', data-toggle='dropdown' style="border-radius:5px;font-size:15px;")
+              | Category: &nbsp
+              span.caret
 
-                  h3.fw OR
+            ul.dropdown-menu(role='menu', aria-labelledby='dropdownMenu1' style="margin-top:-17px;margin-left:-81px;")
+              each category in categories
+                li(role='presentation')
+                  // this is being added because allUploads is not a legitimate category, but this is a bit of a hack fix
+                  if category.displayName !== 'All Uploads' && category.displayName !== 'Category Overview'
+                    a.categoryValue(style="cursor:pointer;" data-value=category.name data-displayname=category.displayName) #{category.displayName}
 
+          div.categoryName(style="display:none")
+            h5(style="font-size:20px;").categoryDisplayName Category: $Thing
 
-                  div#dropTarget(style="")
-                    img(src="/images/fixed.png" style="width:350px;")
-                  br
-                  br
+          //- subcategories
+          each category in categories
+            if category.subcategories && category.subcategories.length > 1
+              div.subcategories(class=category.name style="display:none;")
+                label(for='subcategory' style="font-size:18px;") Subcategory (Optional)
+                each subcategory in category.subcategories
+                    div.subcategory(class=category.name style="display:none")
+                      label(style="margin-top:7px;font-size:15px;")
+                        input(type='radio', name='subcategory' value=subcategory.name required)
+                        | #{subcategory.displayName}
 
-                  div(id="scrollTo")
+          //- RATINGS
+          fieldset
+            legend Rating (*)
+            div.rating(style="")
+              if user.privs.safeForWorkUpload
+                div
+                  input(type='radio', style="margin-bottom:3rem", name='rating' value="allAges" checked=maxRatingAllowed === "SFW")
+                  label Safe For Work
 
-                  h3.fw(style="font-size:30px;margin-bottom:15px;" id="uploadDetails") Upload Details
+              if maxRatingAllowed == 'NSFW' || maxRatingAllowed == 'SENS'
+                div
+                  input(type='radio', name='rating' value="mature")
+                  label Not Safe For Work
 
-                  label.fw(style="font-size: 23px;" for='title') Title (*)
-                  input.form-group.center-block.text-center(style="max-width:600px;height:35px;border-radius:2px;font-size:20px;font-weight:300;" type="text" name="title" id="title" minlength=3, maxlength=100 required)
-                  br
+              if maxRatingAllowed == 'SENS'
+                div
+                  input(type='radio', name='rating' value="sensitive" required)
+                  label Sensitive (Shocking content) 18+
 
-                  // add endpoint for visibility
-                  if user.plan == 'plus'
-                    label.fw(for='title' style="font-size:20px") Visibility
-                    br
-                    div.radio-buttons.visibility
-                      label.fw.radio-inline(style="font-size:15px;")
-                        input.radio-button(type='radio', name='visibility' value="public" checked)
-                        | Public
-                      label.fw.radio-inline(style="font-size:15px;")
-                        input.radio-button(type='radio', name='visibility' value="unlisted")
-                        | Unlisted
-                      label.fw.radio-inline(style="font-size:15px;")
-                        input.radio-button(type='radio', name='visibility' value="private")
-                        | Private
-                    br
-                    br
+              if maxRatingAllowed === "SFW"
+                  p The instance host has chosen to make this instance Safe For Work only, please ensure that your upload is Safe For Work
 
-                  label.fw(for='title' style="font-size:20px") Select A Category
-                  br
+          label(for="description") Description
+          textarea#description.descriptionTextArea(name="description" maxlength='2000' rows="10" cols="70")
 
-                  div.dropdown(style="display:inline;padding-right:15px;")
-                    button#dropdownMenu1.fw.btn.btn-primary.dropdown-toggle(type='button', data-toggle='dropdown' style="border-radius:5px;font-size:15px;")
-                      | Category: &nbsp
-                      span.caret
+        button.submit-button(type="submit") Upload
 
-                    ul.dropdown-menu(role='menu', aria-labelledby='dropdownMenu1' style="margin-top:-17px;margin-left:-81px;")
-                      each category in categories
-                        li(role='presentation')
-                          // this is being added because allUploads is not a legitimate category, but this is a bit of a hack fix
-                          if category.displayName !== 'All Uploads' && category.displayName !== 'Category Overview'
-                            a.categoryValue(style="cursor:pointer;" data-value=category.name data-displayname=category.displayName) #{category.displayName}
+    div.upload-gif
+      h3.upload-title-name Your file is uploading
+      h1(style="margin-bottom:19px;") Uploading...
 
-                  br
-                  br
-                  div.categoryName(style="display:none")
-                    h5.fw(style="font-size:20px;").categoryDisplayName Category: $Thing
-                    br
+      div#myItem1.ldBar(data-preset="circle")
 
+      p(id="uploadTimeElapsed", style="margin-top:77px;") Time elapsed: calculating ...
 
+      p(id="estimatedUploadTimeLeft") Estimated time to completion: calculating ...
 
+      p(id="estimatedTotalUploadTime") Total estimated upload time: calculating ...
 
-                  // subcategories
-                  each category in categories
-                    if category.subcategories && category.subcategories.length > 1
-                      div.subcategories(class=category.name style="display:none;")
-                        label.fw(for='subcategory' style="font-size:18px;") Subcategory (Optional)
-                        each subcategory in category.subcategories
-                            div.radio-buttons.subcategory(class=category.name style="display:none")
-                              label.fw.radio-inline(style="margin-top:7px;font-size:15px;")
-                                input.radio-button(type='radio', name='subcategory' value=subcategory.name required)
-                                | #{subcategory.displayName}
-
-                              br
-                        br
-
-
-
-                  // RATINGS
-                  label.fw(for='rating' style="font-size:24px;margin-top:26px;margin-bottom:15px;") Rating (*)
-                  br
-                  div.radio-buttons.rating(style="")
-                    if user.privs.safeForWorkUpload
-                      label.fw.radio-inline(style="font-size:18px;")
-                        input.radio-button(type='radio', style="margin-bottom:3rem", name='rating' value="allAges" checked=maxRatingAllowed === "SFW")
-                        | Safe For Work
-                      br
-                      br
-
-                    if maxRatingAllowed == 'NSFW' || maxRatingAllowed == 'SENS'
-                      label.fw.radio-inline(style="font-size:18px;")
-                        input.radio-button(type='radio', name='rating' value="mature")
-                        | Not Safe For Work
-                      br
-                      br
-
-                    if maxRatingAllowed == 'SENS'
-                      label.fw.radio-inline(style="font-size:18px;")
-                        input.radio-button(type='radio', name='rating' value="sensitive" required)
-                        | Sensitive (Shocking content) 18+
-
-                      br
-                      br
-
-                    if maxRatingAllowed === "SFW"
-                        div.fw(style="width:400px;max-width:95%;margin:auto;") The instance host has chosen to make this instance Safe For Work only, please ensure that your upload is Safe For Work
-
-                  br
-                  label.fw(for="description" style="font-size:23px;width:600px;") Description
-                  br
-                  textarea.fw.form-group.descriptionTextArea(style="color:black;border-radius:4px;font-size:19px;" type="text" name="description" id="description" maxlength='2000' rows="10" cols="70")
-
-                button.fw.btn.btn-primary.submit-button(style="border-radius:5px;font-size:18px;" type="submit") Upload
-
-          div.upload-gif
-              h3.fw.upload-title-name Your file is uploading
-              br
-              h1.fw(style="margin-bottom:19px;") Uploading...
-
-              div#myItem1.ldBar(data-preset="circle")
-
-              p.fw(id="uploadTimeElapsed", style="margin-top:77px;") Time elapsed: calculating ...
-
-              p.fw(id="estimatedUploadTimeLeft") Estimated time to completion: calculating ...
-
-              p.fw(id="estimatedTotalUploadTime") Total estimated upload time: calculating ...
-
-
-
-
-
-
-
-  script(src='/js/lib/jquery-3.1.1.min.js')
-  script(src='/js/lib/resumable.js')
+append footer
   script.
     $(document).ready(function () {
 

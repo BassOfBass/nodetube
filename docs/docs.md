@@ -6,7 +6,7 @@ TODOs:
 - replace `bluebird` with native Promises (outside of converting methods).
 - rename anything related to `React` into `Reaction`.
 - create a jsdoc typing system.
-- switch to Dart SASS
+- <del>switch to Dart SASS</del> <ins>Complete</ins>
 
 # Backend
 - add `helmet` npm package

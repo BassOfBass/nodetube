@@ -1,4 +1,4 @@
-/** UNFINISHED **/
+/* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
 const winston = require('winston');

@@ -182,9 +182,6 @@ block content
             span(style="display: block; min-height: 30px;") Buy Now
             // img(src="/images/stripe-white.png" style="max-width:200px")
 
-          //br
-          //br
-          //
           //button.stripe-button-el#customButton(type="submit" class="stripe-button-el" style="visibility: visible;")
           //  span(style="display: block; min-height: 30px;") Buy Month Subscription
 
@@ -194,38 +191,23 @@ block content
           //button.stripe-button-el#customButton(type="submit" class="stripe-button-el" style="visibility: visible;")
           //  span(style="display: block; min-height: 30px;") Buy Year Subscription
 
-
-        br
-        br
-        br
-
-
-      // if you're allowed to
+    //- if you're allowed to
     if  user.plan == 'plus' &&  user.privs.youtubeBackup
-      h3.ytBackup
-        br
-        br
-        br
-        h3.fw.text-center(style="") YouTube Backup
-        br
+      h3.ytBackup YouTube Backup
 
-        //form
-        //  .form-group
-        //    .col-sm-offset-3.col-sm-7
-        //      a.btn.btn-block.btn-google.btn-social(href='/auth/youtube')
-        //        i.fa.fa-youtube
-        //        | Sign in with YouTube
-        //
-        //br
-        //br
+        form
+          a.btn.btn-block.btn-google.btn-social(href='/auth/youtube')
+            span.fab.fa-youtube
+            |
+            | Sign in with YouTube
 
       if !user.youtubeChannelId
-        form.form-horizontal
-          .form-group
-            label.col-sm-3.control-label(for='youtubeChannelId') YouTube Username Or Channel ID
+        form
+          div
+            label.col-sm-3(for='youtubeChannelId') YouTube Username Or Channel ID
             .col-sm-7
-              input.form-control(type='youtubeChannelId', name='youtubeChannelId', id='youtubeChannelId')
-          .form-group
+              input(type='youtubeChannelId', name='youtubeChannelId', id='youtubeChannelId')
+          div
             .col-sm-offset-3.col-sm-4
               button.btn.btn-primary.saveChannelId(type='submit')
                 i.fa.fa-pencil
@@ -233,18 +215,18 @@ block content
 
 
           br
-          div.form-group.disabled
-            label.col-sm-3.control-label(for='youtubeChannelId') Status
+          divdiv.disabled
+            label.col-sm-3(for='youtubeChannelId') Status
             .col-sm-7.disabled
               input.disable(type='checkbox', disabled='', data-toggle='toggle')
 
       else
         div(style="text-align:center")
-          label.control-label(for='updateStatus') YouTube Channel Id
+          label(for='updateStatus') YouTube Channel Id
           h5 #{user.youtubeChannelId}
           br
 
-          label.control-label(for='updateStatus') Status
+          label(for='updateStatus') Status
           br
           if user.userSettings.backupOn == false
             input(id="toggle-event" type='checkbox', data-toggle='toggle')
@@ -259,39 +241,39 @@ block content
       br
 
     //form.upload-form(role="form" method="POST" enctype="multipart/form-data")
-    form.update-user-details-form.form-horizontal(role="form" method="POST" enctype="multipart/form-data" action=`${thumbnailServer}/account/profile`)
+    form.update-user-details-form(role="form" method="POST" enctype="multipart/form-data" action=`${thumbnailServer}/account/profile`)
       input(type="hidden" name="uploadToken" value=`${user.uploadToken}`)
-      .form-group
-        label.fw.col-sm-3.control-label(for='channelName' style="font-size:17px;margin-top:16px;") Channel Username
+      div
+        label.fw.col-sm-3(for='channelName' style="font-size:17px;margin-top:16px;") Channel Username
         .col-sm-7
           h3.fw= user.channelUrl
 
-      .form-group
-        label.fw.col-sm-3.control-label(for='channelName' style="font-size:17px;margin-top:-5px;") Channel Display Name
+      div
+        label.fw.col-sm-3(for='channelName' style="font-size:17px;margin-top:-5px;") Channel Display Name
         .col-sm-7
-          input.form-control(type='text', name='channelName', id='channelName', minlength=3, maxlength=25, value=user.channelName style="max-width:513px;")
+          input(type='text', name='channelName', id='channelName', minlength=3, maxlength=25, value=user.channelName style="max-width:513px;")
 
-      .form-group
-        label.fw.col-sm-3.control-label(for='channelName' style="font-size:17px;margin-top:-5px;") Channel Description
+      div
+        label.fw.col-sm-3(for='channelName' style="font-size:17px;margin-top:-5px;") Channel Description
         .col-sm-7
           textarea(id="description" name="description" maxlength='500' rows="7" cols="70" style="max-width:100%") #{user.channelDescription}
 
       // UPLOAD FORM IF NO THUMBNAIL
       if !user.thumbnailUrl
-        .form-group
-          label.fw.col-sm-3.control-label(for='channelName' style="font-size:17px;margin-top:-5px;") Channel Thumbnail
+        div
+          label.fw.col-sm-3(for='channelName' style="font-size:17px;margin-top:-5px;") Channel Thumbnail
           .col-sm-7
             // FILE INPUT BUTTON
             input.center-block.text-center.fw(class="upload-file" data-max-size="500000000" type="file" name="filetoupload" accept="image/*" style="margin:0;margin-bottom:3px;border:0px;")
 
-        //div.form-group
+        //divdiv
         //  div.col-sm-3.
         //  p.col-sm-7(style="white-space:pre-line;margin-top:-15px;margin-bottom:-1px;").
         //    Thumbnail dimensions:
         //    width: up to 302px,
         //    height: 168px
 
-      .form-group
+      div
         .col-sm-offset-3.col-sm-4
           button.fw.btn.btn.btn-primary(type='submit' style="font-size:16px;border-radius:5px;")
             i.fa.fa-pencil
@@ -334,10 +316,10 @@ block content
       if user.email && user.emailConfirmed
         h2.fw.text-center Confirmed Email
           br
-        form.form-horizontal(action='/account/email', method='POST')
+        form(action='/account/email', method='POST')
           input(type='hidden', name='_csrf', value=_csrf)
-          .form-group
-            label.col-sm-3.control-label(for='email') Email Address
+          div
+            label.col-sm-3(for='email') Email Address
             .col-sm-7
               h5 #{user.email}
 
@@ -345,13 +327,13 @@ block content
       if user.email && !user.emailConfirmed
         h3.fw.text-center Save Email
           br
-        form.form-horizontal(action='/account/email', method='POST')
+        form(action='/account/email', method='POST')
           input(type='hidden', name='_csrf', value=_csrf)
-          .form-group
-            label.fw.col-sm-3.control-label(for='email') Email Address
+          div
+            label.fw.col-sm-3(for='email') Email Address
             .col-sm-7
-              input.form-control(type='email', name='email', id='email' value=`${user.email}`)
-          .form-group
+              input(type='email', name='email', id='email' value=`${user.email}`)
+          div
             .col-sm-offset-3.col-sm-4
               button.btn.btn-primary(type='submit')
                 i.fa.fa-envelope
@@ -361,13 +343,13 @@ block content
       if !user.email
         h3.fw.text-center Save Email
           br
-        form.form-horizontal(action='/account/email', method='POST')
+        form(action='/account/email', method='POST')
           input(type='hidden', name='_csrf', value=_csrf)
-          .form-group
-            label.fw.col-sm-3.control-label(for='email') Email Address
+          div
+            label.fw.col-sm-3(for='email') Email Address
             .col-sm-7
-              input.form-control(type='email', name='email', id='email')
-          .form-group
+              input(type='email', name='email', id='email')
+          div
             .col-sm-offset-3.col-sm-4
               button.btn.btn-primary(type='submit')
                 i.fa.fa-envelope
@@ -376,17 +358,17 @@ block content
     h3.fw.text-center Change Password
     br
 
-    form.form-horizontal(action='/account/password', method='POST')
+    form(action='/account/password', method='POST')
       input(type='hidden', name='_csrf', value=_csrf)
-      .form-group
-        label.fw.col-sm-3.control-label(for='password' style="font-size:16px") New Password
+      div
+        label.fw.col-sm-3(for='password' style="font-size:16px") New Password
         .col-sm-7
-          input.form-control(type='password', name='password', id='password' style="max-width:513px;")
-      .form-group
-        label.fw.col-sm-3.control-label(for='confirmPassword' style="font-size:16px") Confirm Password
+          input(type='password', name='password', id='password' style="max-width:513px;")
+      div
+        label.fw.col-sm-3(for='confirmPassword' style="font-size:16px") Confirm Password
         .col-sm-7
-          input.form-control(type='password', name='confirmPassword', id='confirmPassword' style="max-width:513px;")
-      .form-group
+          input(type='password', name='confirmPassword', id='confirmPassword' style="max-width:513px;")
+      div
         .col-sm-offset-3.col-sm-4
           button.fw.btn.btn-primary(type='submit' style="margin-top:20px;border-radius:3px;")
             i.fa.fa-lock

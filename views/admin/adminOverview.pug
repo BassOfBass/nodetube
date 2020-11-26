@@ -1,9 +1,9 @@
 extends ../layout
 
 block content
-    div
-        div
-            h2
-                a(href="/admin/users") Users
-            h2
-                a(href="/admin/subscriptions") Subscriptions
+  h1 Global overview
+  section
+    ul
+      li #[a(href="/admin/users") Users]
+      li #[a(href="/admin/subscriptions") Subscriptions]
+      li #[a(href="/admin/invites") Invites]
