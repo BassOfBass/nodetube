@@ -1,13 +1,20 @@
-const User = require('../../models/index').User;
-const Upload = require('../../models/index').Upload;
-const Comment = require('../../models/index').Comment;
-const Notification = require('../../models/index').Notification;
+const express = require("express"); // JSDoc types
+const {
+  User,
+  Upload,
+  Comment,
+  Notification,
+  Invite
+} = require('../../models/index');
 
 // const adminActions  = ['userDeleted', 'userUndeleted', 'uploadDeleted', 'fullIpDeletion', 'banUser', 'unbanUser'];
 const createAdminAction = require('../../lib/administration/createAdminAction');
-
 const deleteUsers = require('../../lib/administration/deleteUsers');
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.postUsers = async(req, res) => {
 
   const userId = req.body.user;
@@ -53,6 +60,10 @@ exports.postUsers = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.deleteAllUsersAndBlockIps = async(req, res) => {
 
   console.log(req.body);
@@ -72,7 +83,11 @@ exports.deleteAllUsersAndBlockIps = async(req, res) => {
 
 };
 
-// TODO: add admin audit thing here
+/**
+ * TODO: add admin audit thing here.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.changeRatings = async(req, res) => {
 
   try {
@@ -122,6 +137,10 @@ exports.changeRatings = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.deleteAccount = async(req, res) => {
 
   // fullUserDeletion
@@ -170,6 +189,10 @@ exports.deleteAccount = async(req, res) => {
   // res.redirect(`/user/${channelUrl}`);
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.undeleteAccount = async(req, res) => {
 
   // fullUserDeletion
@@ -206,6 +229,10 @@ exports.undeleteAccount = async(req, res) => {
   // res.redirect(`/user/${channelUrl}`);
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.deleteUpload = async(req, res) => {
 
   const upload = await Upload.findOne({ uniqueTag: req.body.videoId }).populate('uploader');
@@ -233,6 +260,10 @@ exports.deleteUpload = async(req, res) => {
   }
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.postPending = async(req, res) => {
 
   const fromUploads = /uploads/.test(req.headers.referer);
@@ -281,12 +312,20 @@ exports.postPending = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.postSiteVisitors = async(req, res) => {
 
   res.send('hello');
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.postComments = async(req, res) => {
 
   const userId = req.body.user;
@@ -318,6 +357,10 @@ exports.postComments = async(req, res) => {
   res.redirect('/admin/comments');
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.sendNotification = async(req, res) => {
 
   let message = req.body.message;
@@ -339,6 +382,10 @@ exports.sendNotification = async(req, res) => {
   res.redirect('/admin/notifications');
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getUserAccounts = async(req, res) => {
 
   try {
@@ -351,7 +398,22 @@ exports.getUserAccounts = async(req, res) => {
     res.status(500);
     res.send('fail');
   }
-
+  
   // let unlistedUploads = await Upload.find({ visibility: 'unlisted' });
-
 };
+
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+exports.postCreateInvite = async (req, res) => {
+  res.send("TBD")
+}
+
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+exports.postEditInvite = async (req, res) => {
+  res.send("TBD")
+}

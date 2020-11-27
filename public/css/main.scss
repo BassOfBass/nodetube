@@ -1,19 +1,18 @@
 //@import "themes/gsdk/gsdk";
-
 //@import "themes/modern/variables";
-
 @import "themes/default/variables";
-
 //@import "themes/flatly/variables";
-
-
 @import "lib/bootstrap/bootstrap";
 @import "lib/font-awesome/font-awesome";
-
 @import "themes/default/default";
 
 // Scaffolding
 // -------------------------
+
+:root {
+  --colour0-primary: hsl(0, 0%, 20%);
+  --colour0-secondary: hsl(0, 0%, 80%);
+}
 
 html {
   position: relative;
@@ -80,3 +79,35 @@ textarea {
 .navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
   max-height: 381px;
 }
+
+/* admin/invites.pug */
+section.invites {
+
+  & > .controls {
+    text-align: center;
+  }
+
+  & > .invitecard {
+    border-radius: 1em;
+    border: 2px solid var(--colour0-primary);
+    padding: 0.5em;
+
+    & > .guests {
+      border-top: 1px solid var(--colour0-primary);
+      padding: 0;
+
+      & > .guestlist {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+        align-items: center;
+
+        & > .guestcard {
+          border-radius: 5px;
+          border: 1px solid var(--colour0-primary);
+        }
+      }
+    }
+  }
+}
+/* END admin/invites.pug */

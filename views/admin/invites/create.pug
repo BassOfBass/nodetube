@@ -1,0 +1,23 @@
+extends ../layout
+
+block extra_js
+
+block content
+  h1 Create an invite
+  section
+    form(action="/admin/invites/create", method="POST")
+      input(type="hidden", name="creator", value=_id)
+      input(type="hidden", name='_csrf', value=_csrf)
+      div
+        //- TODO: make it read-only mode and change the value through button only
+        label(for="code") Code:
+        input#code(type="text", name="code", aria-required="true")
+        //- TODO: make a way to reroll the code
+        button(type="button") Generate code
+      div
+        label(for="uses") Max uses:
+        input#uses(type="number", name="usesLeft", aria-required="true")
+      div
+        label(for="expires") Expires:
+        //- TODO: make it more QoL, probably a `<select>` list with options.
+        input#expires(type="date", name="expirationDate")

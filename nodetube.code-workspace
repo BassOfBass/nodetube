@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.tabSize": 2,
+		"editor.foldingStrategy": "indentation",
+		"files.autoSave": "onWindowChange",
+		"javascript.referencesCodeLens.enabled": true
+		// "emmet.extensionsPath": "/config/emmet"
+	}
+}

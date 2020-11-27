@@ -1,0 +1,43 @@
+extends ../layout
+
+block content
+  h1 Invites overview (Admin)
+  section.invites
+    div.controls
+      //- TODO: add invite creation and sorting functionalities
+      button(type="button") 
+        span.fas.fa-plus
+        |
+        | Create new invite
+
+    each invite in invites
+      article.invitecard
+        header
+          h2 #{invite.code}
+          p #{invite.creator.channelName}
+
+          if invite.usesLeft !== 0 && invite.expirationDate
+            p #{invite.usesLeft}
+          else
+            p Expired or out of uses.
+
+        section.guests
+          p Total of #{invite.guests.length} guests
+          //- TODO: add sorting functionality
+          ul.guestlist
+            each guest in invite.guests
+              li.guestcard
+                p #{guest.channelName}
+                p #{guest.channelURL}
+                p #{guest.role}
+                p #{guest.plan}
+
+        footer
+          div
+            //- TODO: deletion functionality
+            button(type="button") Delete
+          div
+            p Created:
+              date(datetime=invite.createdAt) #{invite.createdAt}
+            p Expires:
+              date(datetime=invite.expirationDate) #{invite.expirationDate}

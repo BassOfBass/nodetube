@@ -1,4 +1,12 @@
-function adminAuth(req, res, next){
+const express = require("express"); // JSDoc types
+
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
+ */
+function adminAuth(req, res, next) {
+  
   if(!req.user){
     res.status(404);
     return res.render('error/404', {
@@ -7,8 +15,9 @@ function adminAuth(req, res, next){
   }
 
   // kick out if not admin
-  const userRole = req.user.role;
-  if(userRole !== 'admin'){
+  const { role } = req.user;
+
+  if (role !== 'admin') {
 
     console.log('not an admin');
 
@@ -22,7 +31,12 @@ function adminAuth(req, res, next){
   return next();
 }
 
-function moderatorAuth(req, res, next){
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
+ */
+function moderatorAuth(req, res, next) {
   if(!req.user){
     res.status(404);
     return res.render('error/404', {
@@ -42,23 +56,31 @@ function moderatorAuth(req, res, next){
   return next();
 }
 
-function plusAuth(req, res, next){
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
+ */
+function plusAuth(req, res, next) {
+
   // redirect to login if it's not there already
-  if(!req.user){
+  if (!req.user) {
+
     return res.redirect('/login');
+
   }
+  const { role, plan } = req.user;
 
-  const userRole = req.user.role;
-  const userPlan = req.user.plan;
-
-  const userIsModOrAdmin = userRole == 'admin' || userRole == 'moderator';
+  const userIsModOrAdmin = role === 'admin' || role === 'moderator';
 
   // kick out if no plus and not admin or moderator
-  if(userPlan !== 'plus' && !userIsModOrAdmin ){
+  if (plan !== 'plus' && !userIsModOrAdmin ) {
     res.status(404);
+
     return res.render('error/plus', {
       title: 'Not Authorized'
     });
+    
   }
 
   return next();

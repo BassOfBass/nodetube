@@ -1,44 +1,48 @@
+const express = require("express"); // JSDoc types
 const redisClient = require('../../config/redis');
 const _ = require('lodash');
-const Upload = require('../../models/index').Upload;
-const AdminAction = require('../../models/index').AdminAction;
-const User = require('../../models/index').User;
-const Subscription = require('../../models/index').Subscription;
-const React = require('../../models/index').React;
-const Comment = require('../../models/index').Comment;
-const SiteVisit = require('../../models/index').SiteVisit;
+const {
+  Upload,
+  AdminAction,
+  User,
+  Subscription,
+  React,
+  Comment,
+  SiteVisit,
+  Invite
+} = require("../../models/index");
 const pagination = require('../../lib/helpers/pagination');
 
-const { uploadServer} = require('../../lib/helpers/settings');
+const { uploadServer } = require('../../lib/helpers/settings');
 
-let viewStats, uploadStats, userStats, reactStats, subscriptionStats, searchStats, commentStats, siteVisitStats;
-
-async function getStats(){
-  let views = await redisClient.getAsync('dailyStatsViews');
-  let uploads = await redisClient.getAsync('dailyStatsUploads');
-  let users = await redisClient.getAsync('dailyStatsUsers');
-  let reacts = await redisClient.getAsync('dailyStatsReacts');
-  let subscriptions = await redisClient.getAsync('dailyStatsSubscriptions');
-  let siteVisits = await redisClient.getAsync('dailyStatsSiteVisits');
-  let comments = await redisClient.getAsync('dailyStatsComments');
-  let searches = await redisClient.getAsync('dailyStatsSearches');
-
-  searchStats = JSON.parse(searches);
-  commentStats = JSON.parse(comments);
-  siteVisitStats = JSON.parse(siteVisits);
-  userStats = JSON.parse(users);
-  reactStats = JSON.parse(reacts);
-  viewStats = JSON.parse(views);
-  subscriptionStats = JSON.parse(subscriptions);
-  uploadStats = JSON.parse(uploads);
-
-}
+// TODO: rewrite as class/object.
+let viewStats;
+let uploadStats;
+let userStats;
+let reactStats;
+let subscriptionStats;
+let searchStats;
+let commentStats;
+let siteVisitStats;
 
 getStats();
-setInterval(function(){
+setInterval( function() {
   getStats();
 }, 1000 * 60 * 1);
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+exports.getAdminOverview = async(req, res) => {
+  return res.render('admin/adminOverview', {});
+};
+
+/**
+ * TODOO: rewrite in proper objects.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.dailyStats = async(req, res) => {
 
   let views = viewStats;
@@ -59,6 +63,10 @@ exports.dailyStats = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getAdminAudit = async(req, res) => {
 
   // exclude uploads without an uploadUrl
@@ -97,6 +105,10 @@ exports.getAdminAudit = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getPending = async(req, res) => {
 
   // exclude uploads without an uploadUrl
@@ -114,6 +126,10 @@ exports.getPending = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getSiteVisitorHistory = async(req, res) => {
 
   const id = req.params.id;
@@ -131,6 +147,10 @@ exports.getSiteVisitorHistory = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getSiteVisitors = async(req, res) => {
   let page = req.params.page;
   if(!page){ page = 1; }
@@ -160,6 +180,10 @@ exports.getSiteVisitors = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getUploads = async(req, res) => {
 
   let page = req.params.page;
@@ -190,6 +214,10 @@ exports.getUploads = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getComments = async(req, res) => {
   let page = req.params.page;
   if(!page){ page = 1; }
@@ -220,10 +248,18 @@ exports.getComments = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getNotificationPage = async(req, res) => {
   return res.render('admin/notifications', {});
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.getUsers = async(req, res) => {
 
   let page = req.params.page;
@@ -257,6 +293,10 @@ exports.getUsers = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.reacts = async(req, res) => {
 
   if(!req.user){
@@ -304,6 +344,10 @@ exports.reacts = async(req, res) => {
 
 };
 
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
 exports.subscriptions = async(req, res) => {
 
   if(!req.user){
@@ -352,6 +396,79 @@ exports.subscriptions = async(req, res) => {
 
 };
 
-exports.getAdminOverview = async(req, res) => {
-  return res.render('admin/adminOverview', {});
+/**
+ * The list of all invites in the database.
+ * 
+ * TODO: include pagination.
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
+exports.getInvitesPage = async(req, res) => {
+
+  try {
+    const invites = await Invite.find({})
+    .populate({
+      path: "creator guests"
+    })
+    .sort({ createdAt: -1 }).exec();
+    
+    return res.render("admin/invites", {
+      title: "Invites list",
+      invites,
+    });
+
+  } catch (error) {
+    console.log(err);
+
+    return res.render('error/500');
+
+  }
+  
 };
+
+/**
+ * The invite creation page.
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
+exports.getInvitesCreationPage = async (req, res) => {
+  res.send("TBD");
+};
+
+/**
+ * The page with expanded details of a given invite.
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
+exports.getInvitePage = async (req, res) => {
+  res.send("TBD");
+};
+
+/**
+ * The page for editing a given invite.
+ * @param {express.Request} req 
+ * @param {express.Response} res
+ */
+exports.getInviteEdit = async (req, res) => {
+  res.send("TBD");
+};
+
+async function getStats(){
+  let views = await redisClient.getAsync('dailyStatsViews');
+  let uploads = await redisClient.getAsync('dailyStatsUploads');
+  let users = await redisClient.getAsync('dailyStatsUsers');
+  let reacts = await redisClient.getAsync('dailyStatsReacts');
+  let subscriptions = await redisClient.getAsync('dailyStatsSubscriptions');
+  let siteVisits = await redisClient.getAsync('dailyStatsSiteVisits');
+  let comments = await redisClient.getAsync('dailyStatsComments');
+  let searches = await redisClient.getAsync('dailyStatsSearches');
+
+  searchStats = JSON.parse(searches);
+  commentStats = JSON.parse(comments);
+  siteVisitStats = JSON.parse(siteVisits);
+  userStats = JSON.parse(users);
+  reactStats = JSON.parse(reacts);
+  viewStats = JSON.parse(views);
+  subscriptionStats = JSON.parse(subscriptions);
+  uploadStats = JSON.parse(uploads);
+}
