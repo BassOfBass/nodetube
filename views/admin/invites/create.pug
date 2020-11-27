@@ -1,23 +1,38 @@
-extends ../layout
+extends ../../layout
 
 block extra_js
+  script.
+    (() => {
+      const constraints = #{constraints};
+      console.log(constraints);
+    })();
+  script(src="/js/admin/create-invite.js" defer)
 
 block content
   h1 Create an invite
-  section
+  section.invitecreate
     form(action="/admin/invites/create", method="POST")
-      input(type="hidden", name="creator", value=_id)
-      input(type="hidden", name='_csrf', value=_csrf)
+      //- TODO: get an `id` of the person submitting the form
+      input(type="hidden", name="creator", value=id required)
+      input(type="hidden", name='_csrf', value=_csrf required)
       div
         //- TODO: make it read-only mode and change the value through button only
         label(for="code") Code:
-        input#code(type="text", name="code", aria-required="true")
+        input#code(type="text", name="code", aria-required="true", value=code, readonly, required)
         //- TODO: make a way to reroll the code
-        button(type="button") Generate code
+        //- button(type="button") Reroll code
+      div
+        label(for="title") Title:
+        input#title(type="text", name="title")
+      div
+        label(for="description") Description:
+        textarea#description(name="description", cols="30", rows="5", maxlength="200", spellcheck="default")
       div
         label(for="uses") Max uses:
-        input#uses(type="number", name="usesLeft", aria-required="true")
+        input#uses(type="number", name="usesLeft", aria-required="true", min="1" value="1")
       div
         label(for="expires") Expires:
         //- TODO: make it more QoL, probably a `<select>` list with options.
         input#expires(type="date", name="expirationDate")
+      div.buttons
+        button(type="submit") Submit

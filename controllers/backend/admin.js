@@ -398,15 +398,17 @@ exports.getUserAccounts = async(req, res) => {
     res.status(500);
     res.send('fail');
   }
-  
+
   // let unlistedUploads = await Upload.find({ visibility: 'unlisted' });
 };
 
 /**
+ * TODO: add validation
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
-exports.postCreateInvite = async (req, res) => {
+exports.postInviteCreate = async (req, res) => {
+  console.log(req.body);
   res.send("TBD")
 }
 
@@ -414,6 +416,6 @@ exports.postCreateInvite = async (req, res) => {
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
-exports.postEditInvite = async (req, res) => {
+exports.postInviteEdit = async (req, res) => {
   res.send("TBD")
 }

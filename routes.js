@@ -359,9 +359,8 @@ function frontendRoutes(app){
   app.get('/admin/adminAudit/:page', authMiddleware.adminAuth, adminFrontendController.getAdminAudit);
   app.get("/admin/invites", authMiddleware.adminAuth, adminFrontendController.getInvitesPage);
   app.get("/admin/invites/create", authMiddleware.adminAuth, adminFrontendController.getInvitesCreationPage);
-  app.get("/admin/invites/:code", authMiddleware.adminAuth, adminFrontendController.getInvitesCreationPage);
-  app.get("/admin/invites/:code/edit", authMiddleware.adminAuth, adminFrontendController.getInvitesCreationPage);
-  app.get("/admin/invites/:code/delete", authMiddleware.adminAuth, adminFrontendController.getInvitesCreationPage);
+  app.get("/admin/invites/:code", authMiddleware.adminAuth, adminFrontendController.getInvitePage);
+  app.get("/admin/invites/:code/edit", authMiddleware.adminAuth, adminFrontendController.getInviteEdit);
 
   /* SOCIAL MEDIA ENDPOINTS */
   app.get('/admin/createSocialPost', authMiddleware.adminAuth, socialMediaFrontendController.getCreateSocialPost);
@@ -379,8 +378,8 @@ function frontendRoutes(app){
   app.post('/admin/getUserAccounts', authMiddleware.adminAuth, adminBackendController.getUserAccounts);
 
   // invites API
-  app.post("/admin/invites/create", authMiddleware.adminAuth, adminBackendController.postCreateInvite)
-  app.post("/admin/invites/edit", authMiddleware.adminAuth, adminBackendController.postEditInvite)
+  app.post("/admin/invites/create", authMiddleware.adminAuth, adminBackendController.postInviteCreate)
+  app.post("/admin/invites/edit", authMiddleware.adminAuth, adminBackendController.postInviteEdit)
 
   app.post('/save-subscription', passportConfig.isAuthenticated, internalApiController.savePushEndpoint);
 

@@ -10,7 +10,21 @@ const inviteSchema = new mongoose.Schema({
     immutable: true
   },
 
-  usesLeft: Number,
+  title: {
+    type: String,
+    minlength: 3,
+    maxlength: 15
+  },
+
+  description: {
+    type: String,
+    maxlength: 200
+  },
+
+  usesLeft: {
+    type: Number,
+    default: 1
+  },
   expirationDate: Date,
 
   /**
@@ -47,4 +61,4 @@ const inviteSchema = new mongoose.Schema({
  */
 const Invite = mongoose.model("Invite", inviteSchema);
 
-module.exports = Invite;
+module.exports = {Invite, inviteSchema};
