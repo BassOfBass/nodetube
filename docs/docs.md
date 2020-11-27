@@ -11,6 +11,7 @@
 - add `helmet` npm package
 - create invite system
 - research Mongoose schema types for possibly streamlined validation constraints
+- lock admin scripts behind auth somehow
 
 ## HTML/PUG
 

@@ -16,7 +16,7 @@ const LastWatchedTime = require('./LastWatchedTime');
 const PushSubscription = require('./PushSubscription');
 const PushEndpoint = require('./PushEndpoint');
 const EmailSubscription = require('./EmailSubscription');
-const Invite = require("./Invite")
+const { Invite, inviteSchema } = require("./Invite")
 
 module.exports = {
   Upload,
@@ -37,6 +37,5 @@ module.exports = {
   PushSubscription,
   PushEndpoint,
   EmailSubscription,
-  Invite
+  Invite, inviteSchema
 };
-

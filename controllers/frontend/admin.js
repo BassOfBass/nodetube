@@ -1,6 +1,7 @@
 const express = require("express"); // JSDoc types
-const redisClient = require('../../config/redis');
 const _ = require('lodash');
+const { nanoid } = require("nanoid");
+
 const {
   Upload,
   AdminAction,
@@ -9,8 +10,10 @@ const {
   React,
   Comment,
   SiteVisit,
-  Invite
+  Invite,
+  inviteSchema
 } = require("../../models/index");
+const redisClient = require('../../config/redis');
 const pagination = require('../../lib/helpers/pagination');
 
 const { uploadServer } = require('../../lib/helpers/settings');
@@ -411,7 +414,7 @@ exports.getInvitesPage = async(req, res) => {
       path: "creator guests"
     })
     .sort({ createdAt: -1 }).exec();
-    
+
     return res.render("admin/invites", {
       title: "Invites list",
       invites,
@@ -432,7 +435,11 @@ exports.getInvitesPage = async(req, res) => {
  * @param {express.Response} res
  */
 exports.getInvitesCreationPage = async (req, res) => {
-  res.send("TBD");
+  res.render("admin/invites/create", {
+    title: "Invite creation page",
+    constraints: inviteSchema.obj,
+    code: nanoid()
+  });
 };
 
 /**
