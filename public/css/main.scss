@@ -194,14 +194,14 @@ textarea {
   max-height: 381px;
 }
 
-/* admin/invites.pug */
-section.invites {
+/* admin/invitations.pug */
+section.invitations {
 
   & > .controls {
     text-align: center;
   }
 
-  & > .invitecard {
+  & > .invitationcard {
     border-radius: 1em;
     border: 2px solid var(--colour0-primary);
     padding: 0.5em;
@@ -224,10 +224,10 @@ section.invites {
     }
   }
 }
-/* END admin/invites.pug */
+/* END admin/invitations.pug */
 
-/* admin/invites/create.pug */
-section.invitecreate {
+/* admin/invitations/create.pug */
+section.invitationcreate {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
@@ -272,6 +272,15 @@ section.invitecreate {
     */
     caret-color: inherit;
     background-color: hsl(0, 0%, 100%);
+
+    &[readonly] {
+      background-color: var(--colour0-secondary);
+      border: 1px solid transparent;
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
   }
 
   & form {
@@ -320,4 +329,4 @@ section.invitecreate {
   
 }
 
-/* END admin/invites/create.pug */
+/* END admin/invitations/create.pug */

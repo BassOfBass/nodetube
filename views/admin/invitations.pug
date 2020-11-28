@@ -1,0 +1,80 @@
+extends ../layout
+
+block extra_js
+  script.
+    (() => {
+      const constraints = #{constraints};
+      console.log(constraints);
+    })();
+  script(src="/js/admin/invitations.js" defer)
+
+block content
+  h1 Invitations overview (Admin)
+  section.invitationcreate
+    h2 Create invitation
+    form(action="/admin/invitations/create", method="POST")
+      //- TODO: get an `id` of the person submitting the form
+      input(type="hidden", name="creator", value=userID required)
+      input(type="hidden", name='_csrf', value=_csrf required)
+      div
+        //- TODO: make it read-only mode and change the value through button only
+        label(for="code") Code:
+        input#code(type="text", name="code", aria-required="true", value=code, readonly, minlength=21, maxlength=21)
+        //- TODO: make a way to reroll the code
+        //- button(type="button") Reroll code
+      div
+        label(for="title") Title:
+        input#title(type="text", name="title")
+      div
+        label(for="description") Description:
+        textarea#description(name="description", cols="30", rows="5", maxlength="200", spellcheck="default")
+      div
+        label(for="uses") Max uses:
+        input#uses(type="number", name="usesLeft", aria-required="true", min="1" value="1")
+      div
+        label(for="expires") Expires:
+        //- TODO: make it more QoL, probably a `<select>` list with options.
+        input#expires(type="date", name="expirationDate")
+      div.buttons
+        button(type="submit") Submit
+
+  section.invitations
+    h2 Invitations list
+    div.controls
+      //- TODO: add invitation creation and sorting functionalities
+      button(type="button") 
+        span.fas.fa-plus(aria-hidden="true")
+        |
+        | Create an invitation
+
+    each invitation in invitations
+      article.invitationcard
+        header
+          h2 #{invitation.code}
+          p #{invitation.creator.channelName}
+
+          if invitation.usesLeft !== 0 && invitation.expirationDate
+            p #{invitation.usesLeft}
+          else
+            p Expired or out of uses.
+
+        section.guests
+          p Total of #{invitation.guests.length} guests
+          //- TODO: add sorting functionality
+          ul.guestlist
+            each guest in invitation.guests
+              li.guestcard
+                p #{guest.channelName}
+                p #{guest.channelURL}
+                p #{guest.role}
+                p #{guest.plan}
+
+        footer
+          div
+            //- TODO: deletion functionality
+            button(type="button") Delete
+          div
+            p Created:
+              date(datetime=invitation.createdAt) #{invitation.createdAt}
+            p Expires:
+              date(datetime=invitation.expirationDate) #{invitation.expirationDate}

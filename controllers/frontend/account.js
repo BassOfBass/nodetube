@@ -1,49 +1,11 @@
-/** UNFINISHED **/
+/* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
 const randomstring = require('randomstring');
 const _ = require('lodash');
-const User = require('../../models/index').User;
-const Upload = require('../../models/index').Upload;
-const Comment = require('../../models/index').Comment;
-const View = require('../../models/index').View;
-const SiteVisit = require('../../models/index').SiteVisit;
-const React = require('../../models/index').React;
-const Notification = require('../../models/index').Notification;
-const SocialPost = require('../../models/index').SocialPost;
-const Subscription = require('../../models/index').Subscription;
-const PushSubscription = require('../../models/index').PushSubscription;
-const EmailSubscription = require('../../models/index').EmailSubscription;
-
-const PushEndpoint = require('../../models/index').PushEndpoint;
-
 const RSS = require('rss');
-
-const { uploadServer, uploadUrl } = require('../../lib/helpers/settings');
-const { saveMetaToResLocalForChannelPage } = require('../../lib/mediaPlayer/generateMetatags');
-
-const { filterUploadsByMediaType } = require('../../lib/mediaBrowsing/helpers');
-const timeHelper = require('../../lib/helpers/time');
-
 const { URLSearchParams } = require('url');
-
-const brandName = process.env.INSTANCE_BRAND_NAME;
-
-const thumbnailServer = process.env.THUMBNAIL_SERVER || '';
-
-const pagination = require('../../lib/helpers/pagination');
-
-const categories = require('../../config/categories');
-
-const uploadFilters = require('../../lib/mediaBrowsing/helpers');
-
-const { saveAndServeFilesDirectory } = require('../../lib/helpers/settings');
-
-const { userCanUploadContentOfThisRating } = require('../../lib/uploading/helpers');
-
 const validator = require('email-validator');
-
-const { getUploadDuration } = require('../../lib/mediaBrowsing/helpers');
 
 const javascriptTimeAgo = require('javascript-time-ago');
 javascriptTimeAgo.locale(require('javascript-time-ago/locales/en'));
@@ -51,11 +13,40 @@ require('javascript-time-ago/intl-messageformat-global');
 require('intl-messageformat/dist/locale-data/en');
 const timeAgoEnglish = new javascriptTimeAgo('en-US');
 
-const secondsToFormattedTime = timeHelper.secondsToFormattedTime;
+const {
+  User,
+  Upload,
+  Comment,
+  View,
+  SiteVisit,
+  React,
+  Notification,
+  SocialPost,
+  Subscription,
+  PushSubscription,
+  EmailSubscription,
+  PushEndpoint,
+} = require("../../models/index");
+const { uploadServer, uploadUrl } = require('../../lib/helpers/settings');
+const { saveMetaToResLocalForChannelPage } = require('../../lib/mediaPlayer/generateMetatags');
+const { filterUploadsByMediaType } = require('../../lib/mediaBrowsing/helpers');
+const { secondsToFormattedTime } = require('../../lib/helpers/time');
+const pagination = require('../../lib/helpers/pagination');
+const categories = require('../../config/categories');
+const uploadFilters = require('../../lib/mediaBrowsing/helpers');
+const { saveAndServeFilesDirectory } = require('../../lib/helpers/settings');
+const { userCanUploadContentOfThisRating } = require('../../lib/uploading/helpers');
+const { getUploadDuration } = require('../../lib/mediaBrowsing/helpers');
 
+const brandName = process.env.INSTANCE_BRAND_NAME;
+const thumbnailServer = process.env.THUMBNAIL_SERVER || '';
 const forgotEmailFunctionalityOn = process.env.FORGOT_PASSWORD_EMAIL_FUNCTIONALITY_ON == 'true';
 
-// TODO: pull this function out
+/**
+ * TODO: pull this function out
+ * @param {*} upload 
+ * @param {*} channelUrl 
+ */
 async function addValuesIfNecessary(upload, channelUrl){
   if(upload.fileType == 'video' || upload.fileType == 'audio'){
     if(!upload.durationInSeconds || !upload.formattedDuration){

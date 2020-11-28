@@ -357,10 +357,9 @@ function frontendRoutes(app){
   app.get('/admin/notifications', authMiddleware.adminAuth, adminFrontendController.getNotificationPage);
   app.get('/admin/adminAudit', authMiddleware.adminAuth, adminFrontendController.getAdminAudit);
   app.get('/admin/adminAudit/:page', authMiddleware.adminAuth, adminFrontendController.getAdminAudit);
-  app.get("/admin/invites", authMiddleware.adminAuth, adminFrontendController.getInvitesPage);
-  app.get("/admin/invites/create", authMiddleware.adminAuth, adminFrontendController.getInvitesCreationPage);
-  app.get("/admin/invites/:code", authMiddleware.adminAuth, adminFrontendController.getInvitePage);
-  app.get("/admin/invites/:code/edit", authMiddleware.adminAuth, adminFrontendController.getInviteEdit);
+  app.get("/admin/invitations", authMiddleware.adminAuth, adminFrontendController.getInvitationsPage);
+  app.get("/admin/invitations/:code", authMiddleware.adminAuth, adminFrontendController.getInvitationPage);
+  app.get("/admin/invitations/:code/edit", authMiddleware.adminAuth, adminFrontendController.getInvitationEdit);
 
   /* SOCIAL MEDIA ENDPOINTS */
   app.get('/admin/createSocialPost', authMiddleware.adminAuth, socialMediaFrontendController.getCreateSocialPost);
@@ -377,9 +376,9 @@ function frontendRoutes(app){
   app.post('/admin/changeRatings', authMiddleware.adminAuth, adminBackendController.changeRatings);
   app.post('/admin/getUserAccounts', authMiddleware.adminAuth, adminBackendController.getUserAccounts);
 
-  // invites API
-  app.post("/admin/invites/create", authMiddleware.adminAuth, adminBackendController.postInviteCreate)
-  app.post("/admin/invites/edit", authMiddleware.adminAuth, adminBackendController.postInviteEdit)
+  // invitations API
+  app.post("/admin/invitations/create", authMiddleware.adminAuth, adminBackendController.postInvitationCreate)
+  app.post("/admin/invitations/edit", authMiddleware.adminAuth, adminBackendController.postInvitationEdit)
 
   app.post('/save-subscription', passportConfig.isAuthenticated, internalApiController.savePushEndpoint);
 

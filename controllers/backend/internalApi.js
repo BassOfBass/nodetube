@@ -1,6 +1,7 @@
-/** UNFINISHED **/
+/* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
+const express = require("express"); // JSDoc types
 const bluebird = require('bluebird');
 const Promise = require('bluebird');
 const request = bluebird.promisifyAll(require('request'), { multiArgs: true });
@@ -50,20 +51,20 @@ const frontendServer = process.env.FRONTEND_SERVER || '';
 
 const createNotification = require('../../lib/helpers/notifications');
 
-// models
-const Upload = require('../../models/index').Upload;
-const User = require('../../models/index').User;
-const Comment = require('../../models/index').Comment;
-const React = require('../../models/index').React;
-const Subscription = require('../../models/index').Subscription;
-const Notification = require('../../models/index').Notification;
-const CreditAction = require('../../models/index').CreditAction;
-const Report = require('../../models/index').Report;
-const LastWatchedTime = require('../../models/index').LastWatchedTime;
-const PushEndpoint = require('../../models/index').PushEndpoint;
-const PushSubscription = require('../../models/index').PushSubscription;
-const EmailSubscription = require('../../models/index').EmailSubscription;
-
+const {
+  Upload,
+  User,
+  Comment,
+  React,
+  Subscription,
+  Notification,
+  CreditAction,
+  Report,
+  LastWatchedTime,
+  PushEndpoint,
+  PushSubscription,
+  EmailSubscription
+} = require("../../models/index");
 const getMediaType = require('../../lib/uploading/media');
 const pushNotificationLibrary = require('../../lib/mediaPlayer/pushNotification');
 
@@ -725,8 +726,11 @@ exports.editUpload = async(req, res, next) => {
 };
 
 /**
- * POST /api/comment
+ * `POST` `/api/comment`
+ * 
  * List of API examples.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
  */
 exports.deleteComment = async(req, res) => {
 
@@ -772,7 +776,10 @@ exports.deleteComment = async(req, res) => {
 
 /**
  * POST /api/comment
+ * 
  * List of API examples.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
  */
 exports.postComment = async(req, res) => {
 

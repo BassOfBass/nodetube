@@ -8,10 +8,12 @@
 - create a jsdoc typing system.
 - switch to Dart SASS
 - research on [native lazy loading](https://caniuse.com/loading-lazy-attr).
-- add `helmet` npm package
-- create invite system
-- research Mongoose schema types for possibly streamlined validation constraints
-- lock admin scripts behind auth somehow
+- add `helmet` npm package.
+- create invitation system.
+- research Mongoose schema types for possibly streamlined validation constraints.
+- lock admin scripts behind auth somehow.
+- research [`randomstring`](https://www.npmjs.com/package/randomstring) and [`nanoid`](https://github.com/ai/nanoid#readme) functionality clash
+- check out `sitedown.pug`
 
 ## HTML/PUG
 
@@ -25,12 +27,11 @@ Mongoose Schema instances have an `obj` property which stores all its keys and t
 
 ## Endpoints
 
-### Invite-related:
+### Invitation-related:
 
-- `GET` `/admin/invites` - the list of all invites in the database.
-- `GET` `/admin/invites/create` - the invite creation page.
-- `GET` `/admin/invites/:code`- the expanded details of a given invite.
-- `GET` `/admin/invites/:code/edit` - edit a given invite.
+- `GET` `/admin/invitations` - the list of all invitations in the database.
+- `GET` `/admin/invitations/:code`- the expanded details of a given invitation.
+- `GET` `/admin/invitations/:code/edit` - edit a given invitation.
 
-- `POST` `/admin/invites/create` - API for creating invites, outside of its `GET` page.
-- `POST` `/admin/invites/edit` - API for editing existing invites.
+- `POST` `/admin/invitations/create` - API for creating invitations.
+- `POST` `/admin/invitations/edit` - API for editing existing invitations.

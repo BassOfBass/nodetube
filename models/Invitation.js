@@ -1,18 +1,20 @@
 const mongoose = require("mongoose");
 
-const { ModelInvite } = require("../lib/jsdocTypes/index");
+const { ModelInvitation } = require("../lib/jsdocTypes/index");
 
-const inviteSchema = new mongoose.Schema({
+const invitationSchema = new mongoose.Schema({
   code: { 
     type: String, 
     unique: true,
     required: true,
-    immutable: true
+    immutable: true,
+    // `nanoid` gives 21 character strings
+    minlength: 21,
+    maxlength: 21
   },
 
   title: {
     type: String,
-    minlength: 3,
     maxlength: 15
   },
 
@@ -28,7 +30,7 @@ const inviteSchema = new mongoose.Schema({
   expirationDate: Date,
 
   /**
-   * The state of the invite.
+   * The state of the invitation.
    */
   status: {
     type: String,
@@ -37,7 +39,7 @@ const inviteSchema = new mongoose.Schema({
   },
 
   /** 
-   * The person creating the invite.
+   * The person creating the invitation.
    */
   creator: {
     type: mongoose.Schema.Types.ObjectId,
@@ -47,7 +49,7 @@ const inviteSchema = new mongoose.Schema({
   },
 
   /**
-   * All users who entered the invite.
+   * All users who entered the invitation.
    */
   guests: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -57,8 +59,8 @@ const inviteSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 /**
- * @type mongoose.Model<ModelInvite, {}>
+ * @type mongoose.Model<ModelInvitation, {}>
  */
-const Invite = mongoose.model("Invite", inviteSchema);
+const Invitation = mongoose.model("Invitation", invitationSchema);
 
-module.exports = {Invite, inviteSchema};
+module.exports = {Invitation, invitationSchema};

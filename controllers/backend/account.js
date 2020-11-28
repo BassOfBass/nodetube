@@ -1,11 +1,11 @@
-/** UNFINISHED **/
+/* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
+const express = require("express");
+// TODO: check for imported redundancy
 const bluebird = require('bluebird');
 const Promise = require('bluebird');
-const crypto = bluebird.promisifyAll(require('crypto'));
 const nodemailer = require('nodemailer');
-const passport = Promise.promisifyAll(require('passport'));
 const path = require('path');
 const captchapng = require('captchapng');
 const _ = require('lodash');
@@ -13,8 +13,10 @@ const reCAPTCHA = require('recaptcha2');
 var formidable = require('formidable');
 const mv = require('mv');
 const fs = require('fs-extra');
-const mkdirp = Promise.promisifyAll(require('mkdirp'));
 const randomstring = require('randomstring');
+const crypto = bluebird.promisifyAll(require('crypto'));
+const passport = Promise.promisifyAll(require('passport'));
+const mkdirp = Promise.promisifyAll(require('mkdirp'));
 
 const mailTransports = require('../../config/nodemailer');
 // const {sendProtonMail} = require('../../config/protonmailTransport');
@@ -57,9 +59,16 @@ const pagination = require('../../lib/helpers/pagination');
 const redirectUrl = '/account';
 
 /**
- * POST /login
+ * `POST` `/login`
+ * 
  * Sign in using email and password.
- * Email value can either be email or channelUrl (username)
+ * 
+ * Email value can either be email or channelUrl (username).
+ * 
+ * TODO: refactor without callbacks
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
  */
 exports.postLogin = async(req, res, next) => {
   // req.assert('email', 'Email is not valid').isEmail();
@@ -72,8 +81,6 @@ exports.postLogin = async(req, res, next) => {
     req.flash('errors', errors);
     return res.redirect('/login');
   }
-
-  /** TODO: refactor without callbacks **/
 
   /** login with passport **/
   passport.authenticate('local', (err, user, info) => {

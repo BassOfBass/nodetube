@@ -10,8 +10,8 @@ const {
   React,
   Comment,
   SiteVisit,
-  Invite,
-  inviteSchema
+  Invitation,
+  invitationSchema
 } = require("../../models/index");
 const redisClient = require('../../config/redis');
 const pagination = require('../../lib/helpers/pagination');
@@ -400,24 +400,27 @@ exports.subscriptions = async(req, res) => {
 };
 
 /**
- * The list of all invites in the database.
+ * The list of all invitations in the database.
  * 
  * TODO: include pagination.
  * @param {express.Request} req 
  * @param {express.Response} res
  */
-exports.getInvitesPage = async(req, res) => {
+exports.getInvitationsPage = async(req, res) => {
 
   try {
-    const invites = await Invite.find({})
+    const invitations = await Invitation.find({})
     .populate({
       path: "creator guests"
     })
     .sort({ createdAt: -1 }).exec();
 
-    return res.render("admin/invites", {
-      title: "Invites list",
-      invites,
+    return res.render("admin/invitations", {
+      title: "Invitations list",
+      invitations,
+      userID: req.user.id,
+      constraints: invitationSchema.obj,
+      code: nanoid()
     });
 
   } catch (error) {
@@ -430,33 +433,20 @@ exports.getInvitesPage = async(req, res) => {
 };
 
 /**
- * The invite creation page.
+ * The page with expanded details of a given invitation.
  * @param {express.Request} req 
  * @param {express.Response} res
  */
-exports.getInvitesCreationPage = async (req, res) => {
-  res.render("admin/invites/create", {
-    title: "Invite creation page",
-    constraints: inviteSchema.obj,
-    code: nanoid()
-  });
-};
-
-/**
- * The page with expanded details of a given invite.
- * @param {express.Request} req 
- * @param {express.Response} res
- */
-exports.getInvitePage = async (req, res) => {
+exports.getInvitationPage = async (req, res) => {
   res.send("TBD");
 };
 
 /**
- * The page for editing a given invite.
+ * The page for editing a given invitation.
  * @param {express.Request} req 
  * @param {express.Response} res
  */
-exports.getInviteEdit = async (req, res) => {
+exports.getInvitationEdit = async (req, res) => {
   res.send("TBD");
 };
 

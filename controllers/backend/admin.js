@@ -4,7 +4,7 @@ const {
   Upload,
   Comment,
   Notification,
-  Invite
+  Invitation
 } = require('../../models/index');
 
 // const adminActions  = ['userDeleted', 'userUndeleted', 'uploadDeleted', 'fullIpDeletion', 'banUser', 'unbanUser'];
@@ -407,15 +407,35 @@ exports.getUserAccounts = async(req, res) => {
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
-exports.postInviteCreate = async (req, res) => {
-  console.log(req.body);
-  res.send("TBD")
+exports.postInvitationCreate = async (req, res) => {
+  try {
+    const { code, title, description, usesLeft, expirationDate, creator } = req.body;
+
+    const invitationDoc = await Invitation.create({
+      code,
+      title,
+      description,
+      creator,
+      expirationDate,
+      usesLeft
+    });
+
+    return res.redirect("/admin/invitations", 200)
+
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+
+    return res.send("Unknown error");
+
+  }
+  
 }
 
 /**
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
-exports.postInviteEdit = async (req, res) => {
+exports.postInvitationEdit = async (req, res) => {
   res.send("TBD")
 }
