@@ -17,6 +17,7 @@ const redisClient = require('../../config/redis');
 const pagination = require('../../lib/helpers/pagination');
 
 const { uploadServer } = require('../../lib/helpers/settings');
+const { convertToInputDate } = require("../../lib/helpers/time");
 
 // TODO: rewrite as class/object.
 let viewStats;
@@ -410,16 +411,19 @@ exports.getInvitationsPage = async(req, res) => {
 
   try {
     const invitations = await Invitation.find({})
+    .lean()
     .populate({
       path: "creator guests"
     })
-    .sort({ createdAt: -1 }).exec();
+    .sort({ createdAt: -1 });
 
     return res.render("admin/invitations", {
       title: "Invitations list",
+      convertToInputDate,
       invitations,
       userID: req.user.id,
-      constraints: invitationSchema.obj,
+      // TODO: front + back validation
+      // constraints: invitationSchema.obj,
       code: nanoid()
     });
 
@@ -438,16 +442,69 @@ exports.getInvitationsPage = async(req, res) => {
  * @param {express.Response} res
  */
 exports.getInvitationPage = async (req, res) => {
-  res.send("TBD");
+  try {
+    
+    const invitation = await Invitation.findOne({ code: req.params.code })
+    .populate({
+      path: "creator guests"
+    }).exec();
+
+    return res.render("admin/invitations/details", {
+      title: "Invitation details",
+      invitation
+    })
+
+  } catch (error) {
+    console.log(error);
+
+    return res.render('error/500');
+
+  }
+  
 };
 
 /**
  * The page for editing a given invitation.
+ * 
+ * TODO: make so only the creator could access this page.
  * @param {express.Request} req 
  * @param {express.Response} res
  */
 exports.getInvitationEdit = async (req, res) => {
-  res.send("TBD");
+
+  try {
+    const invitation = await Invitation.findOne({ code: req.params.code })
+    .populate({
+      path: "creator guests"
+    }).exec();
+
+    // if user is not a creator, throw error
+    if (req.user.id !== creator.id) {
+      const error = new Error("Access denied");
+      error.name = "403";
+  
+      throw error;
+  
+    }
+
+    return res.render("admin/invitations/edit", {
+      title: "Edit invitation",
+      convertToInputDate,
+      invitation
+    });
+
+  } catch (error) {
+
+    if (error.name === "403") {
+      return res.render("errors/403")
+    }
+
+    console.log(error);
+
+    return res.render('error/500');
+
+  }
+
 };
 
 async function getStats(){

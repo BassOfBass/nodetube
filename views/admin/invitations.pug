@@ -11,13 +11,19 @@ block extra_js
 block content
   h1 Invitations overview (Admin)
   section.invitationcreate
-    h2 Create invitation
+    h2
+      button(type="button") 
+        label.hiddenpointer(for="createinvitation")
+          span.fas.fa-plus(aria-hidden="true")
+          |
+          | Create invitation
+    input#createinvitation(type="checkbox", name="hiddenswitch" hidden)
     form(action="/admin/invitations/create", method="POST")
       //- TODO: get an `id` of the person submitting the form
       input(type="hidden", name="creator", value=userID required)
       input(type="hidden", name='_csrf', value=_csrf required)
       div
-        //- TODO: make it read-only mode and change the value through button only
+        //- TODO: change the value through button only
         label(for="code") Code:
         input#code(type="text", name="code", aria-required="true", value=code, readonly, minlength=21, maxlength=21)
         //- TODO: make a way to reroll the code
@@ -34,32 +40,34 @@ block content
       div
         label(for="expires") Expires:
         //- TODO: make it more QoL, probably a `<select>` list with options.
-        input#expires(type="date", name="expirationDate")
+        input#expires(type="date", name="expirationDate", min= new Date())
       div.buttons
         button(type="submit") Submit
 
   section.invitations
     h2 Invitations list
     div.controls
-      //- TODO: add invitation creation and sorting functionalities
-      button(type="button") 
-        span.fas.fa-plus(aria-hidden="true")
-        |
-        | Create an invitation
-
+      //- TODO: add sorting functionality
     each invitation in invitations
       article.invitationcard
         header
           h2 #{invitation.code}
-          p #{invitation.creator.channelName}
+          p #{invitation.status}
+          p #{invitation.title}
+          p #[a(href=`/user/${invitation.creator.channelUrl}`) Creator]
 
-          if invitation.usesLeft !== 0 && invitation.expirationDate
-            p #{invitation.usesLeft}
+          if invitation.usesLeft !== 0 && invitation.expirationDate > Date.now()
+            p Uses left: #{invitation.usesLeft}
           else
             p Expired or out of uses.
+          
+          p #{invitation.description}
 
         section.guests
-          p Total of #{invitation.guests.length} guests
+          if invitation.guests.length === 0
+            p No guests yet.
+          else
+            p Total of #{invitation.guests.length} guests
           //- TODO: add sorting functionality
           ul.guestlist
             each guest in invitation.guests
@@ -70,9 +78,10 @@ block content
                 p #{guest.plan}
 
         footer
-          div
-            //- TODO: deletion functionality
-            button(type="button") Delete
+          div.buttons
+            a(href=`/admin/invitations/${invitation.code}/edit`) Edit
+            //- TODO: Disabling functionality
+            button(type="button") Disable
           div
             p Created:
               date(datetime=invitation.createdAt) #{invitation.createdAt}

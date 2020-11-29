@@ -6,37 +6,11 @@
 @import "lib/font-awesome/font-awesome";
 @import "themes/default/default";
 
-// Scaffolding
-// -------------------------
-
-:root {
-  --colour0-primary: hsl(0, 0%, 20%);
-  --colour0-secondary: hsl(0, 0%, 80%);
-
-  // buttons
-  --colour-positive: 120;
-  --colour-negative: 0;
-  --colour-submit: 220;
-
-   // widths
-   --width-mobile: 360px;
-   --width-tablet: 720px;
-   --width-desktop: 1080px;
-   --input-min-height: 44px;
-   --input-min-width: 44px;
-
-   // durations for transition and transform properties
-  --duration-none: 0;
-  --duration-fast: 0.25s;
-  --duration-norm: 0.5s;
-  --duration-slow: 1s;
-  --duration-global: var(--duration-norm);
-}
 
 html {
   box-sizing: border-box;
   position: relative;
-  min-height: 100%;
+  height: 100%;
 }
 
 // Inherit box sizing from base to everything else 
@@ -47,110 +21,23 @@ html {
 }
 
 body {
+  display: flex;
+  flex-flow: column nowrap;
+  min-height: 100%;
   background-color: #FAFAFA;
   padding-top: 60px;
-  margin-bottom: 75px;
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 45px;
-  line-height: 45px;
-
-  & p, 
-  & ul {
-    margin-bottom: 0;
-  }
+main {
+  flex: 1 1 auto;
+  padding: 1em;
 }
+
 
 h1 {
   text-align: center;
   text-transform: capitalize;
 }
-
-/* Text content */
-
-// Set consistent line height across several text elements 
-p,
-li,
-dt,
-dd {
-  line-height: 1.5;
-}
-
-li {
-  text-align: inherit;
-}
-
-details {
-  display: block; // Add the correct display in Edge, IE 10+, and Firefox.
-}
-
-summary {
-  display: list-item; // Add the correct display in all browsers.
-}
-
-/* END Text content */
-
-/* Inline text semantics */
-
-b,
-strong {
-  font-weight: bolder; // Add the correct font weight in Chrome, Edge, and Safari.
-}
-
-code,
-kbd,
-samp,
-pre {
-  font-family: monospace, monospace; // Correct the inheritance and scaling of font size in all browsers.
-  font-size: 1em; // Correct the odd `em` font sizing in all browsers.
-}
-
-hr {
-  box-sizing: content-box; // Add the correct box sizing in Firefox.
-  height: 0; // Add the correct box sizing in Firefox.
-  overflow: visible; // Show the overflow in Edge and IE.
-}
-
-small {
-  font-size: 80%; // Add the correct font size in all browsers.
-}
-
-// Prevent `sub` and `sup` elements from affecting the line height in all browsers.
-sub, 
-sup { 
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-
-sub {
-  bottom: -0.25em;
-}
-
-sup {
-  top: -0.5em;
-}
-
-u {
-  text-decoration: #f00 wavy underline;
-}
-
-/* END Inline text semantics */
-
-/* Image and multimedia */
-
-img {
-  border-style: none; // Remove the border on images inside links in IE 10.
-}
-
-/* END Image and multimedia */
-
-/* Forms */
 
 textarea {
   overflow: auto; // Remove the default vertical scrollbar in IE 10+.
@@ -158,8 +45,6 @@ textarea {
 }
 
 /* END Forms */
-// Navbar
-// -------------------------
 
 .navbar-nav img {
   width: 30px;
@@ -167,15 +52,9 @@ textarea {
   margin: -15px 15px -15px;
 }
 
-// Alerts
-// -------------------------
-
 .alert {
   margin-top: 20px;
 }
-
-// Thumbnails
-// -------------------------
 
 .thumbnail {
   padding: 0;
@@ -183,150 +62,302 @@ textarea {
   box-shadow: 0 0 5px #ccc, inset 0 0 0 #000;
 }
 
-// Font Icons
-// -------------------------
-
-.fa {
-  margin-right: 6px;
-}
-
 .navbar-fixed-top .navbar-collapse, .navbar-fixed-bottom .navbar-collapse {
   max-height: 381px;
 }
 
-/* admin/invitations.pug */
-section.invitations {
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css");
 
-  & > .controls {
+  /*body {*/
+  /*margin: 30px;*/
+  /*}*/
+
+  .headerContainer {
+    padding: 0px;
+  }
+
+  .search {
+    position: relative;
+    color: #aaa;
+    font-size: 16px;
+  }
+
+  .search input {
+    width: 600px;
+    height: 36px;
+
+    background: #fcfcfc;
+    border: 1px solid #aaa;
+  }
+
+  .search input {
+    text-indent: 9px;
+  }
+
+  .singleLetter {
+    display: none;
+    color: #0FDA01;
+    font-size: 30px;
+    font-weight: 900;
+    margin-top: 28px;
+    position: absolute;
+    top: -30px;
+  }
+
+  /*.formSpan {*/
+  /*color: grey;*/
+  /*position: absolute;*/
+  /*right: -78px;*/
+  /*top: -1px;*/
+  /*background-color: #eaeaea;*/
+  /*padding: 10px 26px;*/
+  /*border: 1px solid #cec0c0;*/
+  /*}*/
+
+  /* ===========================
+     ====== Medua Query for Search Box ======
+     =========================== */
+
+  /** post button starts to hit search bar **/
+  @media (max-width: 753px){
+    /*input[name="searchValue"] {*/
+    /*display: none;*/
+    /*}*/
+
+    .postButton {
+      display: none !important;
+    }
+
+    .postIcon {
+      display: inline !important;
+    }
+  }
+
+  /* when plus button starts to hit search bar */
+  @media (max-width: 593px) {
+
+    .fullTitle {
+      display: none !important;
+    }
+
+    .singleLetter {
+      display: inline !important;
+      left: -32px;
+    }
+
+    .search-bar {
+      width: 57% !important;
+      margin-left: 70px !important;
+    }
+
+    .hamburgerDropdown {
+      left: 11px !important;
+    }
+
+    .permBar {
+      display: none;
+    }
+  }
+
+  /* when plus button starts to hit search bar */
+  /* everything under 439px  */
+  @media (max-width: 439px) {
+    .fullTitle {
+      display: none !important;
+    }
+
+    .singleLetter {
+      display: inline !important;
+    }
+
+    .search-bar {
+      display: none;
+    }
+
+    .searchPlaceHolder, .uploadButton {
+      display: block !important;
+    }
+
+  }
+
+
+
+  /*@media (min-width: 320px) {*/
+  /*!* smartphones, iPhone, portrait 480x320 phones *!*/
+  /*input[name="searchValue"] {*/
+  /*background: pink;*/
+  /*}*/
+
+  /*}*/
+
+  /*@media (min-width: 481px) {*/
+  /*!* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. *!*/
+  /*input[name="searchValue"] {*/
+  /*background: yellow;*/
+  /*}*/
+
+  /*}*/
+
+  /*@media (min-width: 641px) {*/
+  /*!* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones *!*/
+  /*input[name="searchValue"] {*/
+  /*background: purple;*/
+  /*}*/
+
+  /*!*.postButton {*!*/
+  /*!*display:none !important;*!*/
+  /*!*}*!*/
+
+  /*}*/
+
+  /*@media (min-width: 961px) {*/
+  /*!* tablet, landscape iPad, lo-res laptops ands desktops *!*/
+  /*input[name="searchValue"] {*/
+  /*background: green;*/
+  /*}*/
+
+  /*}*/
+
+  /*@media (min-width: 1025px) {*/
+  /*!* big landscape tablets, laptops, and desktops *!*/
+  /*input[name="searchValue"] {*/
+  /*background: blue;*/
+  /*}*/
+
+  /*}*/
+
+  /*@media (min-width: 1281px) {*/
+  /*!* hi-res laptops and desktops *!*/
+  /*input[name="searchValue"] {*/
+  /*background: red;*/
+  /*}*/
+  /*}*/
+
+
+  .box {
+    width: 80%;
+  }
+
+  .search-bar {
+    width: 55%;
+    position: relative;
+    margin: 0 auto;
+  }
+
+  input[type="text"] {
+    padding: 0 10px;
+    border: 1px solid #BEBEBE;
+    border-radius: 2px 0 0 2px;
+    z-index: 2;
+  }
+
+  input:focus {
+    border: 1.1px solid #1c62b9;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .4);
+  }
+
+  .searchButton {
+    position: absolute;
+    width: 14%;
+    border: 1px solid #BEBEBE;
+    border-left: 0;
+    right: 0;
+    border-radius: 0px 2px 2px 0;
     text-align: center;
+    background-color: #f0f0f0;
+    z-index: 1
   }
 
-  & > .invitationcard {
-    border-radius: 1em;
-    border: 2px solid var(--colour0-primary);
-    padding: 0.5em;
+  .search-uploads-button {
+    border: 1px solid #5b5a5a;
+    z-index: 999999;
+    background-color: #313131 !important;
+  }
 
-    & > .guests {
-      border-top: 1px solid var(--colour0-primary);
-      padding: 0;
+  .search-query-input {
+    border: 1px solid #5b5a5a !important;
+    color:white !important;
+    background-color:#313131;
+  }
 
-      & > .guestlist {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: space-evenly;
-        align-items: center;
+  .search-query-input::placeholder { /* Most modern browsers support this now. */
+    color: grey;
+  }
 
-        & > .guestcard {
-          border-radius: 5px;
-          border: 1px solid var(--colour0-primary);
-        }
-      }
+  .search-uploads-button:hover i {
+    opacity: .95;
+    color: white;
+  }
+
+
+  .searchIcon {
+    position: absolute;
+    left: 44%;
+    top: 29%;
+    color: #a7a3a3;
+  }
+
+  .searchExpander, 
+  .uploadButton {
+    position: absolute;
+    top: 24px;
+    right: 111px;
+    font-size: 22px;
+    color: grey;
+  }
+
+  .signInDiv {
+    display: inline-block;
+    border: 2px solid black;
+    padding: 9px 23px;
+    border-radius: 3px;
+  }
+
+  .signInAnchor {
+    position: absolute;
+    top: 13px;
+    right: 10px;
+  }
+
+  .secondLine {
+    margin-top: -54px !important;
+    padding-left: 56px;
+    background-color: #141414;
+  }
+
+  @media (max-width: 927px) {
+    .diceIcon {
+      visibility: hidden;
     }
-  }
-}
-/* END admin/invitations.pug */
 
-/* admin/invitations/create.pug */
-section.invitationcreate {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-
-  & > h1 {
-    width: 100%;
   }
 
-  & button, 
-  & input, 
-  & optgroup,
-  & select, 
-  & textarea { 
-    box-sizing: border-box;
-    /* 
-      Interactive elements such as form input should provide an area large enough that it is easy to activate them. This helps a variety of people, including people with motor control issues and people using non-precise forms of input such as a stylus or fingers. A minimum interactive size of 44×44 CSS pixels is recommended. 
-    */
-    min-width: var(--input-min-width);
-    width: 100%;
-    max-width: var(--mobile-width);
-    min-height: var(--input-min-height);
-    font-family: inherit; // Change the font styles in all browsers.
-    font-size: 100%; // Change the font styles in all browsers.
-    line-height: 1.15; // Change the font styles in all browsers.
-    border-radius: 5px;
-    padding: 0.5em;
-    /* 
-      Large amounts of interactive content — including buttons — placed in close visual proximity to each other should have space separating them. This spacing is beneficial for people who are experiencing motor control issues, who may accidentally activate the wrong interactive content. 
-    */
+  .postButton {
+    transition: all 0.2s ease;
+    -webkit-transition: all 0.2s ease;
   }
 
-  & button, 
-  & select {
-    text-transform: none; // Remove the inheritance of text transform in Firefox.
+  .search-uploads-button {
+    transition: all 0.2s ease;
+    -webkit-transition: all 0.2s ease;
   }
 
-  & input,
-  & textarea {
-    color: hsl(0, 0%, 0%);
-    /* 
-      A property specific to text entry-related elements is the CSS caret-color property, which lets you set the color used to draw the text input caret: 
-    */
-    caret-color: inherit;
-    background-color: hsl(0, 0%, 100%);
-
-    &[readonly] {
-      background-color: var(--colour0-secondary);
-      border: 1px solid transparent;
-
-      &:focus {
-        box-shadow: none;
-      }
-    }
+  .postButton:hover {
+    background-color: #212121 !important;
   }
 
-  & form {
-    max-width: var(--width-mobile);
-    color: var(--colour0-primary);
-    background-color: var(--colour0-secondary);
-    border-radius: 1em;
-    border: 1px solid var(--colour0-primary);
-    padding: 1em;
-
-    & > div {
-      margin: 1em 0;
-  
-      &:first-of-type {
-        margin-top: 0;
-      }
-    }
+  .search-uploads-button:hover {
+    background-color: #212121 !important;
   }
 
-  & label {
-    color: var(--colour0-primary);
-    padding: 0.5em;
-    cursor: pointer;
-  }
+/* Global header */
 
-  & button,
-  & textarea,
-  & input,
-  & select {
-
-    &::disabled{
-      cursor: not-allowed;
-    }
-  }
-
-  & .buttons {
-    text-align: center;
-    margin-bottom: 0;
-
-    & button[type="submit"] {
-      width: auto;
-      color: hsl(240, 100%, 50%);
-      background-color: hsl(182, 25%, 50%);
-    }
-  }
-  
+.gheader{
+  flex: 1 0 auto;
 }
 
-/* END admin/invitations/create.pug */
+/* Global footer */
+.gfooter {
+  flex: 1 0 auto;
+}
+/* END Global footer */

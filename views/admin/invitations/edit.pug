@@ -1,0 +1,50 @@
+extends ../../layout
+
+block extra_css
+  link(rel="stylesheet", href="/css/alt-styles.css")
+
+block extra_js
+  script(src="/js/admin/invitations.js" defer)
+
+block content
+  h1 Edit invitation
+  section.invitationedit
+    form(action=`/admin/invitations/edit`, method="POST")
+      //- TODO: get an `id` of the person submitting the form
+      input(type="hidden", name="creator", value=userID required)
+      input(type="hidden", name='_csrf', value=_csrf required)
+      div
+        //- TODO: change the value through button only
+        label(for="code") Code:
+        input#code(type="text", name="code", aria-required="true", readonly, minlength=21, maxlength=21, value=invitation.code)
+      div
+        label(for="title") Title:
+        input#title(type="text", name="title", value=invitation.title)
+      div
+        label(for="description") Description:
+        textarea#description(name="description", cols="30", rows="5", maxlength="200", spellcheck="default", value=invitation.description)
+      div
+        label(for="uses") Uses left:
+        input#uses(type="number", name="usesLeft", aria-required="true", min="1" value= invitation.usesLeft)
+      div
+        label(for="expires") Expires:
+        //- TODO: make it more QoL, probably a `<select>` list with options.
+        input#expires(
+          type="date", 
+          name="expirationDate", 
+          min= convertToInputDate(new Date()), 
+          value= convertToInputDate(invitation.expirationDate)
+        )
+      div
+        label(for="status")
+        //- TODO: rewrite into less hardcoded way
+        select#status(name="status", value= invitation.status)
+          - const statusOptions = [ "active", "disabled", "expired", "expended", ];
+          each option in statusOptions
+            option(
+              value=option,
+              selected= option === invitation.status,
+              disabled= option === "expired" || option === "expended",
+            )= option.slice(0, 1).toUpperCase() + option.slice(1)
+      div.buttons
+        button(type="submit") Update

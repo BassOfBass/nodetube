@@ -377,6 +377,7 @@ function frontendRoutes(app){
   app.post('/admin/getUserAccounts', authMiddleware.adminAuth, adminBackendController.getUserAccounts);
 
   // invitations API
+  app.post("/admin/invitations", authMiddleware.adminAuth, adminBackendController.postInvitationsList);
   app.post("/admin/invitations/create", authMiddleware.adminAuth, adminBackendController.postInvitationCreate)
   app.post("/admin/invitations/edit", authMiddleware.adminAuth, adminBackendController.postInvitationEdit)
 

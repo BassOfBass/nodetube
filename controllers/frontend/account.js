@@ -268,8 +268,8 @@ exports.getChannel = async(req, res) => {
     user = await User.findOne({
       // regex for case insensitivity
       channelUrl:  new RegExp(['^', req.params.channel, '$'].join(''), 'i')
-    }).populate('receivedSubscriptions').lean()
-      .exec();
+    })
+    .populate('receivedSubscriptions').lean().exec();
 
     // 404 if no user found
     if(!user){
@@ -334,7 +334,7 @@ exports.getChannel = async(req, res) => {
       // status: 'completed'
     };
 
-    /** DB CALL TO GET UPLOADS **/
+    /* DB CALL TO GET UPLOADS */
     let uploads = await Upload.find(searchQuery).populate('').sort({ createdAt : -1 });
 
     uploads = filterUploadsByMediaType(uploads, mediaType);

@@ -403,7 +403,31 @@ exports.getUserAccounts = async(req, res) => {
 };
 
 /**
- * TODO: add validation
+ * API for fetching the list of invitations.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ */
+exports.postInvitationsList = async(req, res) => {
+
+  try {
+    const invitations = Invitation.find({})
+    .orFail()
+    .lean();
+
+    return res.send(invitations);
+
+  } catch (error) {
+    console.log(error);
+    
+    return res.send(error);
+  }
+
+}
+
+/**
+ * API for creating invitations.
+ * 
+ * TODO: add validation.
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
@@ -420,22 +444,60 @@ exports.postInvitationCreate = async (req, res) => {
       usesLeft
     });
 
-    return res.redirect("/admin/invitations", 200)
+    return res.redirect("/admin/invitations", 200);
 
   } catch (error) {
     console.log(error);
-    res.status(500);
 
-    return res.send("Unknown error");
+    return res.render("error/500");
 
   }
   
 }
 
 /**
+ * API for editing existing invitations.
+ * 
+ * TODOs: 
+ * - add validation
+ * - make so only the creator could update
+ * - only update changed fields
  * @param {express.Request} req 
  * @param {express.Response} res 
  */
 exports.postInvitationEdit = async (req, res) => {
-  res.send("TBD")
+  const { code, title, description, status, usesLeft, expirationDate, creator } = req.body;
+
+  if (req.user.id !== creator.id) {
+    const error = new Error("Access denied");
+    error.name = "403";
+
+    throw error;
+
+  }
+
+  try {
+    const invitation = await Invitation.findOneAndUpdate({
+      code: code
+    }, {
+      title,
+      description,
+      status,
+      usesLeft,
+      expirationDate
+    }).orFail();
+
+    return res.redirect("/admin/invitations", 200);
+
+  } catch (error) {
+    
+    if (error.name === "403") {
+      return res.render("errors/403")
+    }
+
+    console.log(error);
+
+    return res.render("errors/500");
+
+  }
 }

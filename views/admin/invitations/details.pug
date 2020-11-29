@@ -1,5 +1,46 @@
 extends ../../layout
 
+block extra_css
+  link(rel="stylesheet", href="/css/alt-styles.css")
+
+
 block content
   h1 Invitation details
   section.invitationdetailslong
+    div.buttons
+      //- TODO: make so only the creator had "edit"
+      a(href=`/admin/invitations/${invitation.code}/edit`) Edit
+      //- TODO: Disabling functionality
+      button(type="button") Disable
+    h2 #{invitation.code}
+    p #{invitation.title}
+    p #{invitation.status}
+    p #[a(href=`/user/${invitation.creator.channelUrl}`) Creator]
+
+    if invitation.usesLeft !== 0 && invitation.expirationDate > Date.now()
+      p Uses left: #{invitation.usesLeft}
+    else
+      p Expired or out of uses.
+    
+    p #{invitation.description}
+    
+    div
+      p Created:
+        date(datetime=invitation.createdAt) #{invitation.createdAt}
+      p Expires:
+        date(datetime=invitation.expirationDate) #{invitation.expirationDate}
+
+    div.guests
+      if invitation.guests.length === 0
+        p No guests yet.
+      else
+        p Total of #{invitation.guests.length} guests
+      //- TODO: add sorting functionality
+      ul.guestlist
+        each guest in invitation.guests
+          li.guestcard
+            p #{guest.channelName}
+            p #{guest.channelURL}
+            p #{guest.role}
+            p #{guest.plan}         
+      

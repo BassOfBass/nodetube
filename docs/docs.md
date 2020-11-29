@@ -14,6 +14,10 @@
 - lock admin scripts behind auth somehow.
 - research [`randomstring`](https://www.npmjs.com/package/randomstring) and [`nanoid`](https://github.com/ai/nanoid#readme) functionality clash
 - check out `sitedown.pug`
+- add "verified" status to admin users
+- check why `postCreateSocialPost` hangs
+- check if admin can ban himself
+- merge `main.scss` and `alt-styles.scss` into one sheet
 
 ## HTML/PUG
 

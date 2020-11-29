@@ -35,8 +35,8 @@ html
     link(href='https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css', rel='stylesheet')
     block extra_css
 
-    script(src='/js/lib/jquery-3.1.1.min.js' defer)
-    script(src='/js/lib/bootstrap.min.js' defer)
+    script(src='/js/lib/jquery-3.1.1.min.js')
+    script(src='/js/lib/bootstrap.min.js')
     script(src='/js/main.js' defer)
 
     script(src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js")
@@ -59,7 +59,7 @@ html
     block extra_js
 
 
-  body(style="overflow-x:hidden;touch-action: manipulation;" id="body" class="dark-mode")
+  body(id="body" class="dark-mode")
 
     include nodeTubeCss
 
@@ -69,7 +69,7 @@ html
     //- I feel like this is here and breaks if you move it
     include viewPartials/darkLightMode
 
-    main.container(style="max-width:1250px;padding-left: 0px; padding-right: 0px;margin-top:3px;")
+    main
       include layoutPartials/sidebar
 
       include layoutPartials/flash

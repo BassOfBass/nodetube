@@ -1,0 +1,222 @@
+@charset "UTF-8";
+/* Generic selectors */
+:root {
+  --colour0-primary: hsl(0, 0%, 20%);
+  --colour0-secondary: hsl(0, 0%, 80%);
+  --colour-positive: 120;
+  --colour-negative: 0;
+  --colour-submit: 220;
+  --width-mobile: 360px;
+  --width-tablet: 720px;
+  --width-desktop: 1080px;
+  --input-min-height: 44px;
+  --input-min-width: 44px;
+  --duration-none: 0;
+  --duration-fast: 0.25s;
+  --duration-norm: 0.5s;
+  --duration-slow: 1s;
+  --duration-global: var(--duration-norm); }
+
+h1 {
+  text-align: center;
+  text-transform: capitalize; }
+
+/* Text content */
+p,
+li,
+dt,
+dd {
+  line-height: 1.5; }
+
+li {
+  text-align: inherit; }
+
+details {
+  display: block; }
+
+summary {
+  display: list-item; }
+
+/* END Text content */
+/* Inline text semantics */
+b,
+strong {
+  font-weight: bolder; }
+
+code,
+kbd,
+samp,
+pre {
+  font-family: monospace, monospace;
+  font-size: 1em; }
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible; }
+
+small {
+  font-size: 80%; }
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline; }
+
+sub {
+  bottom: -0.25em; }
+
+sup {
+  top: -0.5em; }
+
+u {
+  text-decoration: #f00 wavy underline; }
+
+/* END Inline text semantics */
+/* Image and multimedia */
+img {
+  border-style: none; }
+
+/* END Image and multimedia */
+/* Forms */
+button,
+input,
+optgroup,
+select,
+textarea {
+  box-sizing: border-box;
+  /* 
+    Interactive elements such as form input should provide an area large enough that it is easy to activate them. This helps a variety of people, including people with motor control issues and people using non-precise forms of input such as a stylus or fingers. A minimum interactive size of 44×44 CSS pixels is recommended. 
+  */
+  min-width: var(--input-min-width);
+  width: 100%;
+  max-width: var(--mobile-width);
+  min-height: var(--input-min-height);
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  border-radius: 5px;
+  padding: 0.5em;
+  /* 
+    Large amounts of interactive content — including buttons — placed in close visual proximity to each other should have space separating them. This spacing is beneficial for people who are experiencing motor control issues, who may accidentally activate the wrong interactive content. 
+  */
+  margin: 1em; }
+
+button,
+select {
+  text-transform: none; }
+
+input,
+textarea {
+  color: black;
+  /* 
+    A property specific to text entry-related elements is the CSS caret-color property, which lets you set the color used to draw the text input caret: 
+  */
+  caret-color: inherit;
+  background-color: white; }
+
+form {
+  max-width: var(--width-mobile);
+  color: var(--colour0-primary);
+  background-color: var(--colour0-secondary);
+  border-radius: 1em;
+  border: 1px solid var(--colour0-primary);
+  padding: 1em; }
+  form > div {
+    margin: 1em 0; }
+    form > div:first-of-type {
+      margin-top: 0; }
+    form > div > * {
+      margin: 0; }
+
+label {
+  color: var(--colour0-primary);
+  padding: 0.5em;
+  cursor: pointer; }
+
+textarea {
+  overflow: auto;
+  resize: vertical; }
+
+button::disabled,
+textarea::disabled,
+input::disabled,
+select::disabled {
+  cursor: not-allowed; }
+
+/* END Forms */
+/* END Generic selectors */
+/* Attribute selectors */
+input[readonly],
+textarea[readonly] {
+  background-color: var(--colour0-secondary);
+  border: 1px solid transparent; }
+  input[readonly]:focus,
+  textarea[readonly]:focus {
+    box-shadow: none; }
+
+/* END Attribute selectors */
+/* Class selectors */
+.hiddenpointer {
+  display: block;
+  padding: 0; }
+
+input[name="hiddenswitch"] + * {
+  display: none;
+  transition-property: height;
+  transition-duration: var(--duration-global); }
+
+input[name="hiddenswitch"]:checked + * {
+  display: initial; }
+
+/* admin/invitations.pug */
+section.invitations > .controls {
+  text-align: center; }
+
+section.invitations > .invitationcard {
+  border-radius: 1em;
+  border: 2px solid var(--colour0-primary);
+  padding: 0.5em;
+  margin: 1em; }
+  section.invitations > .invitationcard > .guests {
+    border-top: 1px solid var(--colour0-primary);
+    padding: 0; }
+    section.invitations > .invitationcard > .guests > .guestlist {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: space-evenly;
+      align-items: center; }
+      section.invitations > .invitationcard > .guests > .guestlist > .guestcard {
+        border-radius: 5px;
+        border: 1px solid var(--colour0-primary); }
+
+section.invitationcreate {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: center;
+  align-items: center; }
+  section.invitationcreate > h2 button {
+    padding: 0; }
+  section.invitationcreate .buttons {
+    text-align: center;
+    margin-bottom: 0; }
+    section.invitationcreate .buttons button[type="submit"] {
+      width: auto;
+      color: blue;
+      background-color: #609d9f; }
+
+/* END admin/invitations.pug */
+/* admin/invitations/details.pug */
+/* END admin/invitations/details.pug */
+/* admin/invitations/edit.pug */
+section.invitationedit {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center; }
+  section.invitationedit .buttons {
+    text-align: center; }
+
+/* END admin/invitations/edit.pug */
+/* END Class selectors */
