@@ -7,6 +7,7 @@
 - rename anything related to `React` into `Reactions`.
 - create a jsdoc typing system.
 - switch to Dart SASS
+- merge `main.scss` and `alt-styles.scss` into one sheet
 - research on [native lazy loading](https://caniuse.com/loading-lazy-attr).
 - add `helmet` npm package.
 - create invitation system.
@@ -17,7 +18,7 @@
 - add "verified" status to admin users
 - check why `postCreateSocialPost` hangs
 - check if admin can ban himself
-- merge `main.scss` and `alt-styles.scss` into one sheet
+- client-side validation for invite-related endpoints
 
 ## HTML/PUG
 
@@ -37,5 +38,6 @@ Mongoose Schema instances have an `obj` property which stores all its keys and t
 - `GET` `/admin/invitations/:code`- the expanded details of a given invitation.
 - `GET` `/admin/invitations/:code/edit` - edit a given invitation.
 
+- `POST` `/admin/invitations` - API for fetching invitations.
 - `POST` `/admin/invitations/create` - API for creating invitations.
 - `POST` `/admin/invitations/edit` - API for editing existing invitations.

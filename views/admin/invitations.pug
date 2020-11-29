@@ -1,5 +1,8 @@
 extends ../layout
 
+block extra_css
+  link(rel="stylesheet", href="/css/alt-styles.css")
+
 block extra_js
   script.
     (() => {
@@ -33,7 +36,13 @@ block content
         input#title(type="text", name="title")
       div
         label(for="description") Description:
-        textarea#description(name="description", cols="30", rows="5", maxlength="200", spellcheck="default")
+        textarea#description(
+          name="description", 
+          cols="30", 
+          rows="5", 
+          maxlength="200", 
+          spellcheck="default", 
+        ) 
       div
         label(for="uses") Max uses:
         input#uses(type="number", name="usesLeft", aria-required="true", min="1" value="1")
@@ -51,7 +60,7 @@ block content
     each invitation in invitations
       article.invitationcard
         header
-          h2 #{invitation.code}
+          h2 #[a(href=`/admin/invitations/${invitation.code}`) #{invitation.code}]
           p #{invitation.status}
           p #{invitation.title}
           p #[a(href=`/user/${invitation.creator.channelUrl}`) Creator]
@@ -81,7 +90,6 @@ block content
           div.buttons
             a(href=`/admin/invitations/${invitation.code}/edit`) Edit
             //- TODO: Disabling functionality
-            button(type="button") Disable
           div
             p Created:
               date(datetime=invitation.createdAt) #{invitation.createdAt}

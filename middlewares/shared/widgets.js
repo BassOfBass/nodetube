@@ -1,3 +1,10 @@
+const express = require("express");
+
+/**
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
+ */
 async function zopimWidget(req, res, next){
   let zopimOn;
 
@@ -12,6 +19,11 @@ async function zopimWidget(req, res, next){
   next();
 }
 
+/**
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 async function googleAnalyticsWidget(req, res, next){
 
   let googleAnalyticsOn = false;

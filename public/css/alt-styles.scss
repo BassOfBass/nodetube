@@ -30,6 +30,13 @@ h1 {
   text-transform: capitalize;
 }
 
+article {
+
+  & > * {
+    padding: 0.5em;
+  }
+}
+
 /* Text content */
 
 // Set consistent line height across several text elements 
@@ -183,6 +190,10 @@ textarea {
   resize: vertical;
 }
 
+button {
+  width: auto;
+}
+
 button,
 textarea,
 input,
@@ -217,6 +228,12 @@ textarea {
 /* Class selectors */
 // only selectors by class go there
 
+form {
+  & .buttons {
+    text-align: center;
+  }
+}
+
 // hidden switchers
 .hiddenpointer {
   display: block;
@@ -241,21 +258,41 @@ input {
 
 /* admin/invitations.pug */
 section.invitations {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+
+  & > h2 {
+    width: 100%;
+    font-size: 1.5em;
+  }
 
   & > .controls {
+    width: 100%;
     text-align: center;
   }
 
   & > .invitationcard {
+    flex: 0 0 20em;
+    display: flex;
+    flex-flow: column nowrap;
     border-radius: 1em;
     border: 2px solid var(--colour0-primary);
-    padding: 0.5em;
+    padding: 0;
     margin: 1em;
 
-    & > .guests {
-      border-top: 1px solid var(--colour0-primary);
-      padding: 0;
+    & > header {
+      flex: 0 1 auto;
+      border-bottom: 1px solid var(--colour0-primary);
+    }
 
+    & > footer {
+      flex: 0 1 auto;
+      border-top: 1px solid var(--colour0-primary);
+    }
+
+    & > .guests {
+      flex: 1 1 auto;
       & > .guestlist {
         display: flex;
         flex-flow: row wrap;

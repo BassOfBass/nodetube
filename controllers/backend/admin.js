@@ -460,6 +460,7 @@ exports.postInvitationCreate = async (req, res) => {
  * 
  * TODOs: 
  * - add validation
+ * - perform user validation before invoking `Model.findOneAndUpdate()` and figure out why it returns
  * - make so only the creator could update
  * - only update changed fields
  * @param {express.Request} req 
@@ -468,17 +469,19 @@ exports.postInvitationCreate = async (req, res) => {
 exports.postInvitationEdit = async (req, res) => {
   const { code, title, description, status, usesLeft, expirationDate, creator } = req.body;
 
-  if (req.user.id !== creator.id) {
-    const error = new Error("Access denied");
-    error.name = "403";
+  console.log(creator);
+  console.log(req.user.id);
 
-    throw error;
+  // if (req.user.id !== creator) {
+  //   const error = new Error("Access denied");
+  //   error.name = "403";
 
-  }
+  //   throw error;
+  // }
 
   try {
     const invitation = await Invitation.findOneAndUpdate({
-      code: code
+      code: code,
     }, {
       title,
       description,
@@ -492,7 +495,7 @@ exports.postInvitationEdit = async (req, res) => {
   } catch (error) {
     
     if (error.name === "403") {
-      return res.render("errors/403")
+      return res.render("error/403")
     }
 
     console.log(error);

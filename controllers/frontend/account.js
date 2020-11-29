@@ -1,6 +1,7 @@
 /* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
+const express = require("express"); // JSDoc types
 const randomstring = require('randomstring');
 const _ = require('lodash');
 const RSS = require('rss');
@@ -723,22 +724,28 @@ exports.logout = (req, res) => {
 };
 
 /**
- * GET /signup
+ * `GET` `/signup`
+ * 
  * Signup page.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
  */
 exports.getSignup = (req, res) => {
 
   const recaptchaPublicKey = process.env.RECAPTCHA_SITEKEY;
 
   const captchaOn = process.env.RECAPTCHA_ON == 'true';
+  const globalInvitationsOn = process.env.GINVITATIONS_ON == 'true';
 
   if(req.user){
     return res.redirect('/');
   }
+
   res.render('account/signup', {
     title: 'Create Account',
     recaptchaPublicKey,
-    captchaOn
+    captchaOn,
+    globalInvitationsOn
   });
 };
 

@@ -22,7 +22,7 @@ block content
         input#title(type="text", name="title", value=invitation.title)
       div
         label(for="description") Description:
-        textarea#description(name="description", cols="30", rows="5", maxlength="200", spellcheck="default", value=invitation.description)
+        textarea#description(name="description", cols="30", rows="5", maxlength="200", spellcheck="default") #{invitation.description}
       div
         label(for="uses") Uses left:
         input#uses(type="number", name="usesLeft", aria-required="true", min="1" value= invitation.usesLeft)

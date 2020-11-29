@@ -1,7 +1,7 @@
 /* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
-const express = require("express");
+const express = require("express"); // JSDoc types
 // TODO: check for imported redundancy
 const bluebird = require('bluebird');
 const Promise = require('bluebird');
@@ -118,19 +118,31 @@ exports.postLogin = async(req, res, next) => {
 };
 
 /**
- * POST /signup
+ * `POST` `/signup`
+ * 
  * Create a new local account.
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
  */
 exports.postSignup = async(req, res, next) => {
 
   // CAPTCHA VALIDATION
-  if(process.env.NODE_ENV == 'production' && process.env.RECAPTCHA_ON == 'true'){
+  if (
+    process.env.NODE_ENV == 'production' && 
+    process.env.RECAPTCHA_ON == 'true'
+  ) {
+
     try {
       const response = await recaptcha.validate(req.body['g-recaptcha-response']);
+
     } catch(err){
       req.flash('errors', { msg: 'Captcha failed, please try again' });
+
       return res.redirect('/signup');
+
     }
+
   }
 
   /** assertion testing the data **/
@@ -144,7 +156,7 @@ exports.postSignup = async(req, res, next) => {
   console.log(req.body.channelUrl + ' <--- inputted channelUrl for' + req.body.email);
   // console.log(req.body.grecaptcha.getResponse('captcha'));
 
-  if(!/^\w+$/.test(req.body.channelUrl)){
+  if (!/^\w+$/.test(req.body.channelUrl)) {
     req.flash('errors', { msg: 'Please only use letters, numbers and underscores (no spaces) for your username.' });
     return res.redirect('/signup');
   }
@@ -153,9 +165,11 @@ exports.postSignup = async(req, res, next) => {
 
   const errors = req.validationErrors();
 
-  if(errors){
+  if (errors) {
     req.flash('errors', errors);
+
     return res.redirect('/signup');
+    
   }
 
   let user = new User({
@@ -178,30 +192,47 @@ exports.postSignup = async(req, res, next) => {
     user.privs.importer = true;
   }
 
-  User.findOne({ channelUrl : req.body.channelUrl }, (err, existingUser) => {
-    if(err){ return next(err); }
-    if(existingUser){
+  User.findOne({ 
+    channelUrl : req.body.channelUrl 
+  }, (err, existingUser) => {
+
+    if (err) { return next(err); }
+
+    if (existingUser) {
       req.flash('errors', { msg: 'That channel username is taken, please choose another one.' });
+
       return res.redirect('/signup');
+
     }
     user.save((err) => {
 
       console.log(err);
 
-      if(err && err.errors && err.errors.channelUrl && err.errors.channelUrl.kind == 'unique'){
+      if (
+        err &&
+        err.errors &&
+        err.errors.channelUrl &&
+        err.errors.channelUrl.kind == 'unique'
+      ) {
         req.flash('errors', { msg: 'That channel username is taken, please choose another one' });
+
         return res.redirect('/signup');
+
       }
 
-      if(err){ return next(err); }
+      if (err) { return next(err); }
+
       req.logIn(user, (err) => {
-        if(err){
+        if (err) {
+
           return next(err);
+
         }
 
         const id = user.id;
 
         res.redirect(redirectUrl);
+
       });
     });
   });
