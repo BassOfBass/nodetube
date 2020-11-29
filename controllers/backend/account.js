@@ -1,7 +1,7 @@
 /* UNFINISHED */
 /* eslint-disable no-unused-vars */
 
-const express = require("express");
+const express = require("express"); // JSDoc types
 // TODO: check for imported redundancy
 const bluebird = require('bluebird');
 const Promise = require('bluebird');
@@ -18,45 +18,38 @@ const crypto = bluebird.promisifyAll(require('crypto'));
 const passport = Promise.promisifyAll(require('passport'));
 const mkdirp = Promise.promisifyAll(require('mkdirp'));
 
+const { Invitation, User } = require("../../models");
+const { ModelInvitation } = require("../../lib/jsdocTypes");
 const mailTransports = require('../../config/nodemailer');
+const mailgunTransport = mailTransports.mailgunTransport;
+const zohoTransport = mailTransports.zohoTransport;
 // const {sendProtonMail} = require('../../config/protonmailTransport');
-
+const backblaze = require('../../lib/uploading/backblaze');
+const { b2 } = require('../../lib/uploading/backblaze');
+const getMediaType = require('../../lib/uploading/media');
+const pagination = require('../../lib/helpers/pagination');
+const { saveAndServeFilesDirectory } = require('../../lib/helpers/settings');
 const importerDownloadFunction = require('../../lib/uploading/importer');
+
 
 // importerDownloadFunction('anthony', 'https://www.youtube.com/watch?v=vLJgAAIfKEc');
 
 // console.log('importer');
 // console.log(importerDownloadFunction);
 
-const mailgunTransport = mailTransports.mailgunTransport;
-const zohoTransport = mailTransports.zohoTransport;
-
-
-const User = require('../../models/index').User;
-const getMediaType = require('../../lib/uploading/media');
-
 const brandName = process.env.INSTANCE_BRAND_NAME;
-
 const thumbnailServer = process.env.THUMBNAIL_SERVER || '';
-
 const frontendServer = process.env.FRONTEND_SERVER || '';
-
 const verifyEmailPassword = process.env.NODETUBE_VERIFY_EMAIL_PASSWORD;
 
-const { saveAndServeFilesDirectory } = require('../../lib/helpers/settings');
-
-const backblaze = require('../../lib/uploading/backblaze');
-
+/**
+ * Where to send users to after login/signup.
+ */
+const redirectUrl = '/account';
 const recaptcha = new reCAPTCHA({
   siteKey : process.env.RECAPTCHA_SITEKEY,
   secretKey : process.env.RECAPTCHA_SECRETKEY
 });
-
-const { b2 } = require('../../lib/uploading/backblaze');
-const pagination = require('../../lib/helpers/pagination');
-
-// where to send users to after login
-const redirectUrl = '/account';
 
 /**
  * `POST` `/login`
@@ -118,19 +111,37 @@ exports.postLogin = async(req, res, next) => {
 };
 
 /**
- * POST /signup
+ * `POST` `/signup`
+ * 
  * Create a new local account.
+ * 
+ * TODOs: 
+ * - make it add invitation code only if they are enabled
+ * - refactor into actual async code
+ * @param {express.Request} req 
+ * @param {express.Response} res 
+ * @param {express.NextFunction} next 
  */
 exports.postSignup = async(req, res, next) => {
 
+  const isInvitationsOn = process.env.INVITATIONS !== "none";
+
   // CAPTCHA VALIDATION
-  if(process.env.NODE_ENV == 'production' && process.env.RECAPTCHA_ON == 'true'){
+  if (
+    process.env.NODE_ENV == 'production' && 
+    process.env.RECAPTCHA_ON == 'true'
+  ) {
+
     try {
       const response = await recaptcha.validate(req.body['g-recaptcha-response']);
+
     } catch(err){
       req.flash('errors', { msg: 'Captcha failed, please try again' });
+
       return res.redirect('/signup');
+
     }
+
   }
 
   /** assertion testing the data **/
@@ -141,10 +152,15 @@ exports.postSignup = async(req, res, next) => {
   req.assert('channelUrl', 'Channel username must be entered').notEmpty();
   req.assert('channelUrl', 'Channel username must be between 3 and 25 characters.').len(3,25);
 
+  if (isInvitationsOn) {
+    req.assert("code", "Invitation code must not be empty.").notEmpty();
+    req.assert("code", "Invitation code must be 21 characters long.").len(21,21);
+  }
+
   console.log(req.body.channelUrl + ' <--- inputted channelUrl for' + req.body.email);
   // console.log(req.body.grecaptcha.getResponse('captcha'));
 
-  if(!/^\w+$/.test(req.body.channelUrl)){
+  if (!/^\w+$/.test(req.body.channelUrl)) {
     req.flash('errors', { msg: 'Please only use letters, numbers and underscores (no spaces) for your username.' });
     return res.redirect('/signup');
   }
@@ -153,10 +169,17 @@ exports.postSignup = async(req, res, next) => {
 
   const errors = req.validationErrors();
 
-  if(errors){
+  if (errors) {
     req.flash('errors', errors);
+
     return res.redirect('/signup');
   }
+
+  ModelInvitation
+  /**
+   * @type ModelInvitation
+   */
+  let invitation;
 
   let user = new User({
     email: '' + Math.random() + Math.random(),
@@ -168,7 +191,7 @@ exports.postSignup = async(req, res, next) => {
   // make sure first user is admin, can refactor later
   const numberOfUsers = await User.countDocuments();
 
-  if(numberOfUsers == 0){
+  if (numberOfUsers == 0) {
     user.role = 'admin';
     user.plan = 'plus';
     user.privs.unlistedUpload = true;
@@ -178,33 +201,75 @@ exports.postSignup = async(req, res, next) => {
     user.privs.importer = true;
   }
 
-  User.findOne({ channelUrl : req.body.channelUrl }, (err, existingUser) => {
-    if(err){ return next(err); }
-    if(existingUser){
+  // if no code in database
+  if (isInvitationsOn) {
+    invitation = await Invitation.findOne({ 
+      code: req.body.code
+    }).orFail( Error("The code is invalid") );
+  }
+
+  // if no uses left or expired
+  if ( 
+    !invitation.usesLeft > 0 || 
+    invitation.expirationDate.getSeconds() < Date.now()
+  ) {
+    next(new Error("The code is invalid"))
+  } else {
+    await Invitation.findOneAndUpdate({
+      code: invitation.code
+    },{
+      $inc: { usesLeft: -1 }
+    })
+  }
+
+  User.findOne({ 
+    channelUrl : req.body.channelUrl 
+  }, (err, existingUser) => {
+
+    if (err) { return next(err); }
+
+    if (existingUser) {
       req.flash('errors', { msg: 'That channel username is taken, please choose another one.' });
+
       return res.redirect('/signup');
+
     }
+
     user.save((err) => {
 
       console.log(err);
 
-      if(err && err.errors && err.errors.channelUrl && err.errors.channelUrl.kind == 'unique'){
+      if (
+        err &&
+        err.errors &&
+        err.errors.channelUrl &&
+        err.errors.channelUrl.kind == 'unique'
+      ) {
         req.flash('errors', { msg: 'That channel username is taken, please choose another one' });
+
         return res.redirect('/signup');
+
       }
 
-      if(err){ return next(err); }
+      if (err) { return next(err); }
+
       req.logIn(user, (err) => {
-        if(err){
+
+        if (err) {
+
           return next(err);
+
         }
 
         const id = user.id;
 
         res.redirect(redirectUrl);
+
       });
+
     });
   });
+
 };
 
 /**

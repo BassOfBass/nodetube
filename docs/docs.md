@@ -2,22 +2,21 @@
 
 ## TODOs: 
 - figure out VSCode emmet snippets.
-- replace `lodash` usages with native methods.
-- replace `bluebird` with native Promises (outside of converting methods).
 - rename anything related to `React` into `Reactions`.
 - create a jsdoc typing system.
-- switch to Dart SASS
+- merge `main.scss` and `alt-styles.scss` into one sheet
 - research on [native lazy loading](https://caniuse.com/loading-lazy-attr).
-- add `helmet` npm package.
 - create invitation system.
+- add invitation-related properties to `AdminAction` model.
 - research Mongoose schema types for possibly streamlined validation constraints.
 - lock admin scripts behind auth somehow.
-- research [`randomstring`](https://www.npmjs.com/package/randomstring) and [`nanoid`](https://github.com/ai/nanoid#readme) functionality clash
-- check out `sitedown.pug`
-- add "verified" status to admin users
-- check why `postCreateSocialPost` hangs
-- check if admin can ban himself
-- merge `main.scss` and `alt-styles.scss` into one sheet
+- check out `sitedown.pug`.
+- add "verified" status to admin users.
+- check why `postCreateSocialPost` hangs.
+- check if admin can ban himself.
+- client-side validation for invite-related endpoints.
+
+
 
 ## HTML/PUG
 
@@ -33,9 +32,27 @@ Mongoose Schema instances have an `obj` property which stores all its keys and t
 
 ### Invitation-related:
 
+Model: `Invitation` - `Invitation.js`
+
 - `GET` `/admin/invitations` - the list of all invitations in the database.
 - `GET` `/admin/invitations/:code`- the expanded details of a given invitation.
 - `GET` `/admin/invitations/:code/edit` - edit a given invitation.
 
+- `POST` `/admin/invitations` - API for fetching invitations.
 - `POST` `/admin/invitations/create` - API for creating invitations.
 - `POST` `/admin/invitations/edit` - API for editing existing invitations.
+
+TODOs:
+- automate status checks on the model itself or write a lib/middleware so the endpoints would only compare against `status` property.
+
+## Packages
+
+TODOs:
+
+- phase out `express-flash`.
+- replace `lodash` usages with native methods.
+- replace `bluebird` with native Promises (outside of converting methods).
+- add `helmet` npm package.
+- switch to `Dart SASS`
+- research [`randomstring`](https://www.npmjs.com/package/randomstring) and [`nanoid`](https://github.com/ai/nanoid#readme) functionality clash
+- update `javascript-time-ago` to the latest version

@@ -8,7 +8,8 @@
 		"editor.tabSize": 2,
 		"editor.foldingStrategy": "indentation",
 		"files.autoSave": "onWindowChange",
-		"javascript.referencesCodeLens.enabled": true
+		"javascript.referencesCodeLens.enabled": true,
+		"javascript.referencesCodeLens.showOnAllFunctions": true
 		// "emmet.extensionsPath": "/config/emmet"
 	}
 }

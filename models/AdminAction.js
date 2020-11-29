@@ -6,14 +6,22 @@ require('javascript-time-ago/intl-messageformat-global');
 require('intl-messageformat/dist/locale-data/en');
 const timeAgoEnglish = new javascriptTimeAgo('en-US');
 
-/**
- * Allows for an audit of actions taken by admin
- */
 const adminActionSchema = new mongoose.Schema({
   actionType: {
     type: String,
-    enum: ['userDeleted', 'userUndeleted', 'uploadDeleted', 'fullIpDeletion', 'banUser', 'unbanUser', 'fullUserDeletion',
-      'fullUserUndeletion', 'changeUploadRating', 'untrustUser', 'trustUser']
+    enum: [
+      'userDeleted', 
+      'userUndeleted', 
+      'uploadDeleted', 
+      'fullIpDeletion', 
+      'banUser', 
+      'unbanUser', 
+      'fullUserDeletion',
+      'fullUserUndeletion', 
+      'changeUploadRating', 
+      'untrustUser', 
+      'trustUser'
+    ]
   },
   adminOrModerator: {
     type: mongoose.Schema.Types.ObjectId,
@@ -45,6 +53,9 @@ adminActionSchema.virtual('timeAgo').get(function(){
   return timeAgoEnglish.format( new Date(this.createdAt) );
 });
 
+/**
+ * Allows for an audit of actions taken by admin.
+ */
 const AdminAction = mongoose.model('AdminAction', adminActionSchema);
 
 module.exports = AdminAction;

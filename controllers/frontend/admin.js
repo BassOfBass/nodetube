@@ -479,7 +479,7 @@ exports.getInvitationEdit = async (req, res) => {
     }).exec();
 
     // if user is not a creator, throw error
-    if (req.user.id !== creator.id) {
+    if (req.user.id !== invitation.creator.id) {
       const error = new Error("Access denied");
       error.name = "403";
   

@@ -166,7 +166,7 @@ const userSchema = new mongoose.Schema({
   // TODO: horrific name, should rename to indicate its the backblaze response
   thumbnailUrl: String,
 
-  /** such as `user-thumbnail${fileExtension}`; **/
+  // such as `user-thumbnail${fileExtension}`; 
   customThumbnail: String,
 
   uploadToken: String,
@@ -218,6 +218,12 @@ const userSchema = new mongoose.Schema({
   pushNotificationEndpoints: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PushEndpoint'
+  }],
+
+  // storing in array in case the system gets expanded
+  invitations: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Invitation"
   }]
 
 }, { timestamps: true, minimize: false });

@@ -5,11 +5,11 @@ block content
   section 
     form.form-horizontal.signup-form(id='signup-form', method='POST')
       input(type='hidden', name='_csrf', value=_csrf)
-      //.form-group
-      //  label.col-sm-3.control-label(for='channelName') Display Name
-      //  .col-sm-7
-      //    input.form-control(type='text', name='channelName', id='channelName', placeholder='The name that shows up for your channel',
-      //    autofocus, minlength=3, maxlength=25, required)
+      //-.form-group
+      //-  label.col-sm-3.control-label(for='channelName') Display Name
+      //-  .col-sm-7
+      //-    input.form-control(type='text', name='channelName', id='channelName', placeholder='The name that shows up for your channel',
+      //-    autofocus, minlength=3, maxlength=25, required)
       .form-group
         label.fw.loginHeader.col-sm-3.control-label(for='channelUrl') Channel Username
         .col-sm-7
@@ -23,14 +23,20 @@ block content
         .col-sm-7
           input.fw.loginHeader.form-control.confirmPasswordInput(type='password', name='confirmPassword', id='confirmPassword', placeholder='Please confirm your password', required)
 
+      if globalInvitationsOn
+        .form-group
+          label.fw.loginHeader.col-sm-3.control-label(for="invitationcode") Invitation Code
+          .col-sm-7
+            input#invitationcode.fw.loginHeader.form-control(type="text", name="code", placeholder='Please enter your invitation code', required, minlength="21", maxlength="21")
+
       if captchaOn == true
         .form-group
           label.fw.loginHeader.col-sm-3.control-label(for='captcha') Captcha
-          //.col-sm-offset-3.col-sm-7
+          //-.col-sm-offset-3.col-sm-7
           .form-group.col-md-4(style="margin-left:1pt;")
             .g-recaptcha(data-sitekey=`${recaptchaPublicKey}` id='captcha')
 
-      //var regex = new RegExp("^[a-zA-Z]+$");
+      //-var regex = new RegExp("^[a-zA-Z]+$");
 
       .form-group
         .col-sm-offset-3.col-sm-7
