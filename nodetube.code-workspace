@@ -9,7 +9,13 @@
 		"editor.foldingStrategy": "indentation",
 		"files.autoSave": "onWindowChange",
 		"javascript.referencesCodeLens.enabled": true,
-		"javascript.referencesCodeLens.showOnAllFunctions": true
-		// "emmet.extensionsPath": "/config/emmet"
+		"javascript.referencesCodeLens.showOnAllFunctions": true,
+		"emmet.includeLanguages": {},
+		"emmet.extensionsPath": "/d:/projects/repos-forked/nodetube"
+	},
+	"extensions": {
+		"recommendations": [
+			"mikestead.dotenv"
+		]
 	}
 }

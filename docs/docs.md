@@ -10,13 +10,12 @@
 - add invitation-related properties to `AdminAction` model.
 - research Mongoose schema types for possibly streamlined validation constraints.
 - lock admin scripts behind auth somehow.
-- check out `sitedown.pug`.
-- add "verified" status to admin users.
-- check why `postCreateSocialPost` hangs.
-- check if admin can ban himself.
-- client-side validation for invite-related endpoints.
-
-
+- research [`randomstring`](https://www.npmjs.com/package/randomstring) and [`nanoid`](https://github.com/ai/nanoid#readme) functionality clash
+- check out `sitedown.pug`
+- add "verified" status to admin users
+- check why `postCreateSocialPost` hangs
+- check if admin can ban himself
+- client-side validation for invite-related endpoints
 
 ## HTML/PUG
 

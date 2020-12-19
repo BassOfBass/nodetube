@@ -1,0 +1,7 @@
+{
+  "html": {
+    "snippets" : {
+      "btn:b|button:button|button:b": "button[type={button}] ${1}"
+    }
+  }
+}

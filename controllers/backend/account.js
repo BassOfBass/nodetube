@@ -173,6 +173,7 @@ exports.postSignup = async(req, res, next) => {
     req.flash('errors', errors);
 
     return res.redirect('/signup');
+    
   }
 
   ModelInvitation
@@ -254,7 +255,6 @@ exports.postSignup = async(req, res, next) => {
       if (err) { return next(err); }
 
       req.logIn(user, (err) => {
-
         if (err) {
 
           return next(err);
