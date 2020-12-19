@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const Upload = require('../../models/index').Upload;
 const User = require('../../models/index').User;
 const View = require('../../models/index').View;
@@ -72,48 +74,85 @@ function getFormattedFileSize(upload){
  */
 exports.getMedia = async(req, res) => {
 
+  // get the amount of slashes, to determine if the user is allowed
+  // to access the vanity url version of this url
+  let requestPath = req.path;
+
+  if(requestPath.charAt(requestPath.length - 1) == '/'){
+    requestPath = requestPath.substr(0, requestPath.length - 1);
+  }
+
+  const amountOfSlashes = requestPath.split('/').length - 1;
 
   try {
 
     // channel id and file name
-      const channel = req.params.channel;
-      const media = req.params.media;
-      user = await User.findOne({
-        // regex for case insensitivity
-        channelUrl:  new RegExp(['^', req.params.channel, '$'].join(''), 'i')
-      }).populate('receivedSubscriptions').lean()
-        .exec();
-
-      let existingPushSub;
-      let existingEmailSub;
-      let pushSubscriptionSearchQuery;
-
-      // test if push notif and emails are already activated per viewing user
-      if(req.user){
-        pushSubscriptionSearchQuery = {
-          subscribedToUser :  user._id,
-          subscribingUser: req.user._id,
-          active: true
-        }
-        existingPushSub = await PushSubscription.findOne(pushSubscriptionSearchQuery);
-
-        existingEmailSub = await EmailSubscription.findOne(pushSubscriptionSearchQuery);
-      }
-
-      // if the user already has push notis turned on
-      const alreadyHavePushNotifsOn = Boolean(existingPushSub);
-
-      const alreadySubscribedForEmails = Boolean(existingEmailSub);
-
-      console.log("alreadyHavePushNotifsOn: ")
-      console.log(alreadyHavePushNotifsOn);
-
-      console.log("alreadySubscribedForEmails: ")
-      console.log(alreadySubscribedForEmails);
+    const channel = req.params.channel;
+    const media = req.params.media;
+    let user = await User.findOne({
+      // regex for case insensitivity
+      channelUrl:  new RegExp(['^', req.params.channel, '$'].join(''), 'i')
+    }).populate('receivedSubscriptions').lean()
+      .exec();
 
     let upload = await Upload.findOne({
       uniqueTag: media
-    }).populate({path: 'uploader comments blockedUsers', populate: {path: 'commenter'}}).exec();
+    }).populate({
+      path: 'uploader comments blockedUsers',
+      populate: {
+        path: 'commenter'
+      }
+    }).exec();
+
+    if(!user && upload){
+      user = await User.findOne({
+        _id : upload.uploader
+      });
+    }
+
+    // indicates a 'shortened' media player url, if not plus spit out
+    if(amountOfSlashes === 2 && user.plan !== 'plus'){
+      res.status(404);
+      return res.render('error/404', {
+        title: 'Not Found'
+      });
+    }
+
+    // TODO: make sure to add query params here
+    // if it's three but you're plus, then move to shortened url
+    if(amountOfSlashes === 3 && user.plan == 'plus'){
+      return res.redirect(`/${user.channelUrl}/${upload.uniqueTag}`);
+    }
+
+    // TODO: pull this thing out
+    /** * PUSH NOTIFICATION SECTION **/
+    let existingPushSub;
+    let existingEmailSub;
+    let pushSubscriptionSearchQuery;
+
+    // test if push notif and emails are already activated per viewing user
+    if(req.user && user){
+      pushSubscriptionSearchQuery = {
+        subscribedToUser :  user._id,
+        subscribingUser: req.user._id,
+        active: true
+      };
+      existingPushSub = await PushSubscription.findOne(pushSubscriptionSearchQuery);
+
+      existingEmailSub = await EmailSubscription.findOne(pushSubscriptionSearchQuery);
+    }
+
+    // if the user already has push notis turned on
+    const alreadyHavePushNotifsOn = Boolean(existingPushSub);
+
+    const alreadySubscribedForEmails = Boolean(existingEmailSub);
+
+    // console.log("alreadyHavePushNotifsOn: ")
+    // console.log(alreadyHavePushNotifsOn);
+    //
+    // console.log("alreadySubscribedForEmails: ")
+    // console.log(alreadySubscribedForEmails);
+    /** * PUSH NOTIFICATION SECTION **/
 
     // even though this is named 'hide upload' it should really be named return 404
     // because it will return true even if there is no upload
@@ -244,6 +283,19 @@ exports.getMedia = async(req, res) => {
 
     const viewingUserHasConfirmedEmail = viewingUser && viewingUser.email && viewingUser.emailConfirmed;
 
+    // TODO: to bugfix if the user is wrong, perhaps better to just get the user
+
+    let amountOfPushSubscriptions;
+    let amountOfEmailSubscriptions;
+
+    if(user){
+      amountOfPushSubscriptions = await PushSubscription.count({ subscribedToUser :  user._id, active: true });
+
+      amountOfEmailSubscriptions = await EmailSubscription.count({ subscribedToUser :  user._id, active: true });
+
+    }
+
+    const uploadedAtTime = moment(upload.processingCompletedAt).format('MMMM Do YYYY');
 
     res.render('media', {
       title: upload.title,
@@ -279,7 +331,11 @@ exports.getMedia = async(req, res) => {
       uploadFps,
       alreadyHavePushNotifsOn,
       alreadySubscribedForEmails,
-      viewingUserHasConfirmedEmail
+      viewingUserHasConfirmedEmail,
+      amountOfPushSubscriptions,
+      amountOfEmailSubscriptions,
+      uploadedAtTime,
+      requestPath
     });
 
   } catch(err){

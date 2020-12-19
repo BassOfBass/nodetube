@@ -12,7 +12,7 @@ process.on('unhandledRejection', console.log);
 dotenv.load({ path: '../.env.private' });
 dotenv.load({ path: '../.env.settings' });
 
-const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 console.log('Connected to ' + mongoUri);
 
@@ -38,21 +38,27 @@ const Upload = require('../../models/index').Upload;
 const User = require('../../models/index').User;
 
 async function main(){
-  const uploads = await Upload.find({
-    fileType: 'video'
+  const channelUrl = 'TonyHeller';
+  const user = await User.findOne({
+    channelUrl
   });
 
+  // uploader_id
+  const uploads = await Upload.find({
+    processingCompletedAt : { $exists: false }
+  });
+
+  console.log(uploads);
+  console.log(uploads.length);
+  // return
+
   for(const upload of uploads){
-    const user = await User.findById(upload.uploader);
-    const videoPath = `../uploads/${user.channelUrl}/${upload.uniqueTag}.mp4`;
-    // console.log(`${videoPath}`);
 
     try {
-      const response = await ffmpegHelper.ffprobePromise(videoPath);
-      //  console.log(response);
-      upload.ffprobeData = response;
-      // save the ffprobe data
+      upload.processingCompletedAt = upload.createdAt;
+
       await upload.save();
+
     } catch(err){
       console.log(err);
       continue;

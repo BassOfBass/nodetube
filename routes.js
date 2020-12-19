@@ -139,6 +139,8 @@ function frontendRoutes(app){
   app.get('/docs', publicController.getDocs);
 
   app.get('/donate', publicController.getDonate);
+  app.get('/help', publicController.getHelp);
+
   app.get('/plus', publicController.getPlus);
 
   app.get('/landing', publicController.getLandingPage);
@@ -375,6 +377,14 @@ function frontendRoutes(app){
       title: 'Debug'
     });
   });
+
+  // req.params
+  // app.get('/:media', mediaPlayerController.getMedia)
+
+  // "vanity url"
+  app.get('/:channel', accountFrontendController.getChannel);
+
+  app.get('/:channel/:media', mediaPlayerController.getMedia);
 
   // anything that misses, return a 404
   app.get('*', function(req, res){

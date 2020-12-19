@@ -5,6 +5,7 @@ const uploadHelpers = require('../../lib/helpers/settings');
 const uploadServer = uploadHelpers.uploadServer;
 
 const Upload = require('../../models/index').Upload;
+const User = require('../../models/index').User;
 
 const logCaching = process.env.LOG_CACHING;
 const defaultLandingPage = process.env.DEFAULT_LANDING_PAGE;
@@ -154,7 +155,11 @@ exports.random = async(req, res) => {
 
   upload = upload[0];
 
-  return res.redirect(`/user/v/${upload.uniqueTag}/`);
+  const user = await User.findOne({
+    _id : upload.uploader
+  });
+
+  return res.redirect(`/user/${user.channelUrl}/${upload.uniqueTag}/`);
 
   // /user/v/Kqd5SfS
 
@@ -250,7 +255,23 @@ exports.getDonate = async(req, res) => {
 
   res.render('public/donate', {
     title: 'Donate',
-    stripeToken
+    stripeToken,
+    dontShowOptionalHeader : true
+  });
+};
+
+/**
+ * GET /help
+ * Donation page
+ */
+exports.getHelp = async(req, res) => {
+
+  const stripeToken = process.env.STRIPE_FRONTEND_TOKEN;
+
+  res.render('public/help', {
+    title: 'Help NewTube',
+    stripeToken,
+    dontShowOptionalHeader : true
   });
 };
 
@@ -261,7 +282,19 @@ exports.getDonate = async(req, res) => {
 exports.getPlus = async(req, res) => {
 
   res.render('public/plus', {
-    title: 'Plus'
+    title: 'Plus',
+    dontShowOptionalHeader : true
+  });
+};
+
+/**
+ * GET /mobile
+ * Mobile page
+ */
+exports.getMobile = async(req, res) => {
+
+  res.render('public/mobile', {
+    title: 'Mobile'
   });
 };
 

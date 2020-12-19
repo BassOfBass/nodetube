@@ -2,6 +2,11 @@ extends layout
 
 block content
 
+    style.
+        .swal2-content {
+            font-size:16px !important;
+        }
+
     if !upload.description
         style.
             @media (min-width: 900px) {
@@ -49,12 +54,14 @@ block content
 
     style.
 
+        .plyr {
+            max-height: 102.5vh;
+            max-width: 100vw;
+        }
+
         @media (min-width: 668px) {
 
-            .plyr {
-                max-height: 100vh;
-                max-width: 100vw;
-            }
+
         }
 
         .pending-string {
@@ -499,10 +506,21 @@ block content
                 if user
                     div(style="margin-top:12px")
                         // TODO: this should create a push subsciption, and it will also send a query to see if it should create a new service worker
-                        h2.pushNotificationIcon(style="display:inline")
-                            i.share-icon.fas.fa-bell(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:0px;color:white;")
-                        h2.emailNotificationIcon(style="display:inline")
-                            i.share-icon.fas.fa-envelope(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:10px;color:white;")
+                        div.pushSubscriptionsDiv(style="display:inline-block")
+                            h2.pushNotificationIcon(style="display:inline")
+                                i.fas.fa-bell(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:0px;color:white;")
+                            p.pushSubscriptions(style="margin-left:1px") #{amountOfPushSubscriptions}
+                        div.emailSubscriptionsDiv(style="display:inline-block")
+                            h2.emailNotificationIcon(style="display:inline")
+                                i.fas.fa-envelope(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:10px;color:white;")
+                            p.emailSubscriptions(style="margin-left:10px") #{amountOfEmailSubscriptions}
+
+                    //div(style="margin-top:12px")
+                    //    // TODO: this should create a push subsciption, and it will also send a query to see if it should create a new service worker
+                    //    h2.pushNotificationIcon(style="display:inline")
+                    //        i.share-icon.fas.fa-bell(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:0px;color:white;")
+                    //    h2.emailNotificationIcon(style="display:inline")
+                    //        i.share-icon.fas.fa-envelope(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:10px;color:white;")
 
                 //br
                 ////- push notification functionality
@@ -588,18 +606,24 @@ block content
 
                         br
 
-                        div.bottomButtons(style="margin-top:-21px;padding-bottom:10px;")
+                        div.bottomButtons(style="margin-top:-17px;padding-bottom:10px;")
 
                             //// embed button
                             div.change-size-button(style="margin-left:0px;color: rgb(121 119 119) !important;")
                                 h2.share-button
-                                    i.share-icon.fas.fa-code(aria-hidden="true" style="cursor:pointer;font-size:19px;margin-left:0px;")
+                                    i.share-icon.fas.fa-code(aria-hidden="true" style="cursor:pointer;font-size:26px;margin-left:0px;")
+
+                            // report upload button
+                            div.change-size-button(style="cursor:pointer;margin-left:6px;color: rgb(121 119 119) !important;")
+                                h2.rss-button(style="font-size:19px;")
+                                    i.share-icon.fas.fa-rss(aria-hidden="true" style="cursor:pointer;font-size:26px;")
 
 
                             // report upload button
-                            div.change-size-button(style="cursor:pointer;margin-left:0px;color: rgb(121 119 119) !important;")
+                            div.change-size-button(style="cursor:pointer;margin-left:6px;color: rgb(121 119 119) !important;")
                                 h2.report-button(style="font-size:19px;")
-                                    i.share-icon.fa.fa-exclamation-triangle(aria-hidden="true" style="cursor:pointer;font-size:17px;")
+                                    i.share-icon.fa.fa-exclamation-triangle(aria-hidden="true" style="cursor:pointer;font-size:26px;")
+
 
 
 
@@ -659,6 +683,9 @@ block content
                 if upload.uploader
                     h4.fw(style="color:a5a5a5")
                         | Uploaded #{upload.timeAgo} &nbsp
+
+                    h4.fw(style="font-size:15px;color:a5a5a5")
+                        | #{uploadedAtTime} &nbsp
 
                     if upload.visibility == 'removed'
                         h2 Upload Deleted
@@ -861,7 +888,12 @@ block extra_js
   if user
         script.
 
+            // EMAIL SUBSCRIPTION
             $(document).ready(function(){
+
+              let amountOfEmailSubscriptions = Number('#{amountOfEmailSubscriptions}');
+
+              let amountOfPushSubscriptions = Number('#{amountOfPushSubscriptions}');
 
               var alreadyHaveEmailNotifsOn = '#{alreadySubscribedForEmails}' == 'true'
 
@@ -884,7 +916,7 @@ block extra_js
                   const data = {
                     _csrf: csrf,
                     user: '#{user.channelUrl}',
-                    channel: '#{channel.channelUrl}'
+                    channel: '#{upload.uploader.channelUrl}'
                   }
 
                   $.ajax({
@@ -897,9 +929,22 @@ block extra_js
                       let swalText = 'You have subscribed to their email notifications'
 
                       if (alreadyHaveEmailNotifsOn) {
+
+                        amountOfEmailSubscriptions = amountOfEmailSubscriptions - 1
+
+                        $('.emailSubscriptions').text(amountOfEmailSubscriptions)
+
                         swalText = 'You have unsubscribed from their email notifications'
                         $('.emailNotificationIcon i').css('color', 'gray')
+                      } else {
+                        amountOfEmailSubscriptions = amountOfEmailSubscriptions + 1
+
+                        $('.emailSubscriptions').text(amountOfEmailSubscriptions)
                       }
+
+
+
+
 
                       swal(swalText);
 
@@ -929,8 +974,8 @@ block extra_js
 
               var alreadyHavePushNotifsOn = '#{alreadyHavePushNotifsOn}' == 'true'
 
-              console.log('readl');
-              console.log(alreadyHavePushNotifsOn);
+              // console.log('ready');
+              // console.log(alreadyHavePushNotifsOn);
 
               if (alreadyHavePushNotifsOn) {
                 $('.pushNotificationIcon i').css('color', 'white')
@@ -938,8 +983,10 @@ block extra_js
                   $('.pushNotificationIcon i').css('color', 'gray')
               }
 
+              // if the user's device doesn't have support for service worker and push manager
+              // note: Safari has ServiceWorker but not PushManager
               if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                $('.pushNotificationIcon i').hide()
+                $('.pushSubscriptionsDiv').hide()
               }
 
 
@@ -965,8 +1012,17 @@ block extra_js
 
                     // if push notifs already on
                     if (alreadyHavePushNotifsOn) {
+                      amountOfPushSubscriptions = amountOfPushSubscriptions - 1
+
+                      $('.pushSubscriptions').text(amountOfPushSubscriptions)
+
                       swalText = 'You have unsubscribed from their push notifications'
                       $('.pushNotificationIcon i').css('color', 'gray')
+                    } else {
+                      amountOfPushSubscriptions = amountOfPushSubscriptions + 1
+
+                      $('.pushSubscriptions').text(amountOfPushSubscriptions)
+
                     }
 
                     swal(swalText);
@@ -1264,7 +1320,7 @@ block extra_js
         // if the theatre mode is off, scroll to where the header ends, and go large screen
         if(theatreModeOn == false){
           window.scrollTo(0, 67);
-          $('.plyr').css('height', '98.5vh')
+          $('.plyr').css('height', '102.5vh')
           console.log('HIT!')
 
           $('.display-element').css('border', '0px solid white')
@@ -1353,6 +1409,28 @@ block extra_css
         margin-top: 0px;
     }
 
+    /*button.plyr__control:first-of-type {*/
+    /*    width: 100px;*/
+    /*    height: 100px;*/
+    /*}*/
+
+    /*button:first-of-type.plyr__control {*/
+    /*    width: 100px;*/
+    /*    height: 100px;*/
+    /*}*/
+
+    button[data-plyr="play"] > svg[role="presentation"]{
+        height:58px;
+        width:58px;
+        left:7px;
+    }
+
+    .plyr__controls__item > svg[role="presentation"]{
+        height: 20px !important;
+        width: 20px !important;
+        left: 18px !important;
+    }
+
 
 block extra_footer_js
 
@@ -1367,6 +1445,8 @@ block extra_footer_js
   script.
 
     $(document).ready(function () {
+
+
       // old scroll down to change the header
       //window.scrollTo(0, 21);
 
@@ -1533,23 +1613,35 @@ block extra_footer_js
 
              // console.log("fadeIn");
 
-            // what's going on here?
+            // if it's under the timeout time, make the cursor rule regular
+            // aka,the inverse of the other rule
             $('html').css({
               cursor: ''
             });
+
+            // $('.plyr__controls').show()
+
+
           } else {
+
             $('.plyr').css({
               cursor: 'default'
             });
+
+            // $('.plyr__controls').show()
+
             fadeInBuffer = false;
           }
 
 
+          /** hiding the cursor after 2030 ms **/
           timer = setTimeout(function () {
              console.log("fadeout");
             $('.plyr').css({
               cursor: 'none'
             });
+
+            // $('.plyr__controls').hide()
 
             fadeInBuffer = true;
           }, 2030)

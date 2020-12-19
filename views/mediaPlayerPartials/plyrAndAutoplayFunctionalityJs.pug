@@ -99,11 +99,14 @@ script.
   console.log(dontAutoplayBasedOnUpload)
 
 
-  if (dontAutoplayBasedOnUpload && shouldNotAutoPlayBasedOnViews) {
+  if ((dontAutoplayBasedOnUpload && shouldNotAutoPlayBasedOnViews) ||  !autoplay) {
     autoplay = false;
   } else {
     autoplay = true;
   }
+
+  // TODO: add the t=12 parameter here
+
 
   console.log('should autoplay ' + autoplay)
 

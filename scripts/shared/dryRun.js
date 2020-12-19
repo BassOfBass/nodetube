@@ -3,16 +3,18 @@
 // In order to us it, symlink your uploads directory in ../ as well
 // as .env.settings and .env.private files, then just run
 // `node ./migrate_ffmpeg.js` from within this directory
+
+/** Has to be run from /scripts **/
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const ffmpegHelper = require('../../lib/uploading/ffmpeg');
 
 process.on('unhandledRejection', console.log);
 
 dotenv.load({ path: '../.env.private' });
 dotenv.load({ path: '../.env.settings' });
 
-const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+const mongoUri = process.env.MONGODB_URI;
 
 console.log('Connected to ' + mongoUri);
 
@@ -37,26 +39,50 @@ mongoose.connection.on('error', (err) => {
 const Upload = require('../../models/index').Upload;
 const User = require('../../models/index').User;
 
+// TODO: a good candidate for automated testing
+function convertYouTubeDlDateToJsDate(youtubeDlDate){
+  var dateString  = youtubeDlDate;
+
+  // console.log(dateString)
+  var year        = dateString.substring(0,4);
+  var month       = dateString.substring(4,6);
+  var day         = dateString.substring(6,8);
+
+  var date        = new Date(year, month-1, day);
+
+  // console.log(date);
+
+  return date;
+
+}
+
 async function main(){
-  const uploads = await Upload.find({
-    fileType: 'video'
+  const channelUrl = 'TonyHeller';
+  const user = await User.findOne({
+    channelUrl
   });
 
-  for(const upload of uploads){
-    const user = await User.findById(upload.uploader);
-    const videoPath = `../uploads/${user.channelUrl}/${upload.uniqueTag}.mp4`;
-    // console.log(`${videoPath}`);
+  // uploader_id
+  const uploads = await Upload.find({
+    uploader: user._id,
+    'youTubeDLData.uploader_id' : 'TonyHeller1'
+  });
 
-    try {
-      const response = await ffmpegHelper.ffprobePromise(videoPath);
-      //  console.log(response);
-      upload.ffprobeData = response;
-      // save the ffprobe data
-      await upload.save();
-    } catch(err){
-      console.log(err);
-      continue;
-    }
+  console.log(uploads);
+  console.log(uploads.length);
+
+  for(const upload of uploads){
+
+    var dateString  = upload.youTubeDLData.upload_date;
+
+    var convertedDate = convertYouTubeDlDateToJsDate(dateString);
+
+    console.log(convertedDate);
+
+    // upload.processingCompletedAt = convertedDate;
+    //
+    // await upload.save();
+
   }
   process.exit();
 }

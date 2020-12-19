@@ -55,6 +55,17 @@ const secondsToFormattedTime = timeHelper.secondsToFormattedTime;
 
 const forgotEmailFunctionalityOn = process.env.FORGOT_PASSWORD_EMAIL_FUNCTIONALITY_ON == 'true';
 
+const { attachDataToUploadsAsUploads } = require('../../lib/helpers/addFieldsToUploads');
+
+// TODO: pull this function out
+function removeTrailingSlash(requestPath){
+  if(requestPath.charAt(requestPath.length - 1) == '/'){
+    requestPath = requestPath.substr(0, requestPath.length - 1);
+  }
+
+  return requestPath;
+}
+
 // TODO: pull this function out
 async function addValuesIfNecessary(upload, channelUrl){
   if(upload.fileType == 'video' || upload.fileType == 'audio'){
@@ -154,13 +165,15 @@ exports.subscriptions = async(req, res) => {
     }
 
     // TODO: change the way views calculated
-    const uploads = await Upload.find({
+    let uploads = await Upload.find({
       uploader: {$in: subscribedToUsers},
       visibility: 'public',
       status: 'completed'
     }).populate('uploader checkedViews')
       .skip((page * limit) - limit)
       .limit(limit).sort({createdAt: -1});
+
+    uploads = attachDataToUploadsAsUploads(uploads);
 
     res.render('account/subscriptions', {
       title: 'Subscriptions',
@@ -254,6 +267,19 @@ exports.getChannelRss = async(req, res) => {
    */
 exports.getChannel = async(req, res) => {
 
+  // TODO count the amount of / in req.path, if it's just one, check to make sure there's Plus
+
+  let requestPath = removeTrailingSlash(req.path);
+
+  // console.log('request path');
+  // console.log(requestPath);
+
+  // console.log(requestPath);
+
+  const amountOfSlashes = requestPath.split('/').length - 1;
+
+  // console.log(req.params);
+
   let page = req.query.page;
   if(!page){ page = 1; }
   page = parseInt(page);
@@ -274,19 +300,57 @@ exports.getChannel = async(req, res) => {
   try {
 
     // find the user per channelUrl
-    user = await User.findOne({
+    let user = await User.findOne({
       // regex for case insensitivity
-      channelUrl:  new RegExp(['^', req.params.channel, '$'].join(''), 'i')
+      channelUrl:  new RegExp(['^', channelUrl, '$'].join(''), 'i')
     }).populate('receivedSubscriptions').lean()
       .exec();
 
     // 404 if no user found
     if(!user){
       res.status(404);
+
+      let notFoundItem;
+      if(amountOfSlashes == 1){
+        notFoundItem = 'content';
+      } else {
+        notFoundItem = 'user';
+      }
+
+      return res.render('error/404', {
+        item: notFoundItem,
+        title: 'Not Found'
+      });
+    }
+
+    // get the query params as a string
+    // these are needed for preserving navigation and other things in the redirect
+    const queryString = require('url').parse(req.url).query;
+
+    // if there is a query string, prepend the ? character
+    let usableQueryString = '';
+    if(queryString){
+      usableQueryString = '?' + queryString;
+    }
+
+    // if they are trying to use shortcut method but not plus, 404 them
+    if(amountOfSlashes === 1 && user.plan !== 'plus'){
+      res.status(404);
       return res.render('error/404', {
         item: 'user',
         title: 'Not Found'
       });
+    }
+
+    // console.log('params');
+    // console.log(req.query);
+    //
+    // console.log('query string');
+    // console.log(queryString)
+
+    // if user has plus, redirect him to shorter section
+    if(amountOfSlashes === 2 && user.plan == 'plus'){
+      return res.redirect(`/${user.channelUrl}${usableQueryString}`);
     }
 
     let viewerIsMod = Boolean(req.user && (req.user.role == 'admin' || req.user.role == 'moderator'));
@@ -308,6 +372,8 @@ exports.getChannel = async(req, res) => {
       });
     }
 
+    // if it's not the proper way to show their name
+    // (ie tonyheller not TonyHeller), then redirect them)
     if(user.channelUrl !== req.params.channel){
       return res.redirect('/user/' + user.channelUrl);
     }
@@ -338,15 +404,33 @@ exports.getChannel = async(req, res) => {
     const searchQuery = {
       uploader: user._id,
       // TODO: shouldn't really be using uploadUrl anymore
-      $or : [ { status: 'completed' }, { uploadUrl: { $exists: true } } ]
+      status: 'completed'
+
+      // $or : [ { status: 'completed' }, { uploadUrl: { $exists: true } } ]
       // uploadUrl: {$exists: true }
       // status: 'completed'
     };
 
     /** DB CALL TO GET UPLOADS **/
-    let uploads = await Upload.find(searchQuery).populate('').sort({ createdAt : -1 });
+
+    const selectString = 'sensitivity visibility views processingCompletedAt fileExtension formattedDuration rating title uploader fileType thumbnailUrl ' + 'uniqueTag customThumbnailUrl thumbnails';
+
+    // get the uploads for the user, that have status completed, and sort by processingCompletedAt
+    let uploads = await Upload.find(searchQuery).select(selectString);
+
+    // let uploads = await Upload.find(searchQuery);
+
+    // console.log('uploads1 length')
+    // console.log(uploads.length);
+
+    // let uploads = await Upload.find(searchQuery).populate('').sort({ processingCompletedAt : -1 })
+
+    // let uploads = await Upload.find(searchQuery).populate('').select(selectString);
 
     uploads = filterUploadsByMediaType(uploads, mediaType);
+
+    // console.log('uploads2 length')
+    // console.log(uploads.length);
 
     // console.log(`IS ADMIN OR MOD: ${viewerIsAdminOrMod}`);
     // console.log(`IS OWNER: ${viewerIsOwner}`);
@@ -356,12 +440,14 @@ exports.getChannel = async(req, res) => {
     // if the viewer is not an owner or admin, only public
     // if they are owner, then public / pending / private / unlisted
     // if they are mod/admin, then no need to filter at all
-
     if(!viewerIsOwner && !viewerIsAdminOrMod){
       uploads = _.filter(uploads, function(upload){
         return upload.visibility == 'public' || upload.visibility == 'unlisted';
       });
     }
+
+    // console.log('uploads3 length')
+    // console.log(uploads.length);
 
     // if viewer is owner but not admin they can also see pending / private uploads
     if(viewerIsOwner && !viewerIsAdminOrMod){
@@ -379,6 +465,7 @@ exports.getChannel = async(req, res) => {
       uploads = _.filter(uploads, function(upload){return upload.visibility == 'public';});
     }
 
+    // TODO: what exactly is this doing here?
     let uploadThumbnailUrl;
     if(uploads && uploads[0]){
       uploadThumbnailUrl =  uploads[0].thumbnailUrl;
@@ -449,24 +536,27 @@ exports.getChannel = async(req, res) => {
 
     const userUploadAmount = uploads.length;
 
+    // TODO: should pull this out in its own function
+    // sort newest to oldest by processingCompletedAt
     if(orderBy == 'newToOld'){
 
       // console.log('new to old');
       uploads = uploads.sort(function(a, b){
-        return b.createdAt - a.createdAt;
+        return b.processingCompletedAt - a.processingCompletedAt;
       });
     }
 
+    // sort oldest to newest by processingCompletedAt
     if(orderBy == 'oldToNew'){
 
       // console.log('old to new');
       uploads = uploads.sort(function(a, b){
-        return a.createdAt - b.createdAt;
+        return a.processingCompletedAt - b.processingCompletedAt;
       });
     }
 
+    // sort by alphabetical
     if(orderBy == 'alphabetical'){
-
       // console.log('alphabetical');
 
       uploads = uploads.sort(function(a, b){
@@ -480,30 +570,62 @@ exports.getChannel = async(req, res) => {
 
     const amountToOutput = limit;
 
-    uploads = uploadFilters.trimUploads(uploads, amountToOutput, skipAmount) ;
+    /** populate view amounts onto uploads **/
+    // TODO: this should be replaced so that it's calculated on a timer and then just use the document
+    // TODO: ideally this all runs off of a cache
+
+    const oneHourAmount =  1000 * 60 * 60;
+
+    // const moreThanOneDayOld =  timeDiffInH > 24;
 
     // populate upload.legitViewAmount
     uploads = await Promise.all(
       uploads.map(async function(upload){
         upload = upload.toObject();
-        const checkedViews = await View.countDocuments({ upload: upload.id, validity: 'real' });
-        upload.legitViewAmount = checkedViews;
+
+        // const timeDiff = new Date() - upload.processingCompletedAt;
+        // const timeDiffInH = timeDiff / oneHourAmount;
+
+        const moreThan24hOld = upload.moreThan24hOld;
+
+        // if(upload.isOver24h == false){
+        if(!moreThan24hOld === true){
+          const checkedViews = await View.countDocuments({ upload: upload.id, validity: 'real' });
+          upload.legitViewAmount = checkedViews;
+
+        } else {
+          upload.legitViewAmount = upload.views;
+        }
         return upload;
       })
     );
 
+    // now that views are populated, you can
     if(orderBy == 'popular'){
       uploads = uploads.sort(function(a, b){
         return b.legitViewAmount - a.legitViewAmount;
       });
     }
 
+    // calculate total views per page
+    // TODO: ideally, this should already be populated on the user
     let totalViews = 0;
     for(upload of uploads){
       totalViews = totalViews + upload.legitViewAmount;
     }
 
     user.totalViews = totalViews;
+
+    // TODO: you will have to add the trim at the end
+    uploads = uploadFilters.trimUploads(uploads, amountToOutput, skipAmount) ;
+
+    const userHasPlus = user.plan === 'plus';
+
+    console.log('USER HAS PLUS');
+
+    console.log(userHasPlus);
+
+    uploads = attachDataToUploadsAsUploads(uploads, userHasPlus, channelUrl);
 
     user.uploads = uploads;
 
@@ -515,35 +637,54 @@ exports.getChannel = async(req, res) => {
 
     const joinedTimeAgo = timeAgoEnglish.format(user.createdAt);
 
-
+    /** * PUSH/EMAIL NOTIFICATIONS FUNCTIONALITY **/
     let existingPushSub;
     let existingEmailSub;
     let pushSubscriptionSearchQuery;
 
+    // TODO: need to make this an index
+
+    // get the amount of push subs for the user whose upload it is
+    const amountOfPushSubscriptions = await PushSubscription.count({ subscribedToUser :  user._id, active: true });
+
+    // TODO: need to make this an index
+
+    // get the amount of email subs for the user whose upload it is
+    const amountOfEmailSubscriptions = await EmailSubscription.count({ subscribedToUser :  user._id, active: true });
+
     // test if push notif and emails are already activated per viewing user
     if(req.user){
+
+      // find the subscription type for the viewing user/uploaded user
       pushSubscriptionSearchQuery = {
         subscribedToUser :  user._id,
         subscribingUser: req.user._id,
         active: true
-      }
+      };
+
+      // TODO: need to do indexes for these
+      // find an existing push sub, to know what to show on the frontend
       existingPushSub = await PushSubscription.findOne(pushSubscriptionSearchQuery);
 
+      // // find an existing email sub, to know what to show on the frontend
       existingEmailSub = await EmailSubscription.findOne(pushSubscriptionSearchQuery);
     }
 
     console.log(existingPushSub);
 
-    // if the user already has push notis turned on
+    // if the user already has subbed for push notifs
     const alreadyHavePushNotifsOn = Boolean(existingPushSub);
 
+    // if the user already has subbed for emails
     const alreadySubscribedForEmails = Boolean(existingEmailSub);
 
     // console.log('already have push notifs on:');
     // console.log(alreadyHavePushNotifsOn);
 
+    // maybe do this earlier?
     const viewingUser = req.user;
 
+    // if user has confirmed email already, for use on frontend
     const viewingUserHasConfirmedEmail = viewingUser && viewingUser.email && viewingUser.emailConfirmed;
 
     // console.log('viewer user confirmed email:');
@@ -575,7 +716,9 @@ exports.getChannel = async(req, res) => {
       orderBy,
       alreadyHavePushNotifsOn,
       alreadySubscribedForEmails,
-      viewingUserHasConfirmedEmail
+      viewingUserHasConfirmedEmail,
+      amountOfEmailSubscriptions,
+      amountOfPushSubscriptions
     });
 
   } catch(err){

@@ -144,7 +144,7 @@ const uploadSchema = new mongoose.Schema({
   toJSON: {
     virtuals: true
   },
-  autoIndex: false
+  autoIndex: true
 });
 
 const oneHourAmount =  1000 * 60 * 60;
@@ -179,9 +179,9 @@ uploadSchema.virtual('lessThan1hOld').get(function(){
   return timeDiffInH > 1;
 });
 
-uploadSchema.virtual('lessThan24hOld').get(function(){
+uploadSchema.virtual('moreThan24hOld').get(function(){
 
-  const timeDiff = new Date() - this.createdAt;
+  const timeDiff = new Date() - this.processingCompletedAt;
   const timeDiffInH = timeDiff / oneHourAmount;
 
   return timeDiffInH > 24;
@@ -266,6 +266,8 @@ uploadSchema.virtual('legitViewAmount').get(function(){
 
   return legitViews;
 });
+
+uploadSchema.index({uploader: 1, status: 1, processingCompletedAt: -1 }, {name: 'Channel Page'});
 
 uploadSchema.index({sensitive: 1, visibility: 1, status: 1, createdAt: -1, category: 1}, {name: 'All Media List'});
 uploadSchema.index({sensitive: 1, visibility: 1, status: 1, fileType: 1, createdAt: -1}, {name: 'File Type List'});
