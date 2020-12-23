@@ -423,7 +423,7 @@ block content
             // if it's an audio
         else if upload.fileType === 'audio'
             div
-                audio#media_player.my_audio(playsinline style="width:80%;" controls='', preload='none')
+                audio#media_player.my_audio(playsinline style="width:80%;" controls='', preload='auto')
 
                     if upload.fileExtension == '.m4a'
                         source(src=`${serverToUse}/${upload.uploader.channelUrl}/${upload.uniqueTag}${upload.fileExtension}`, type='audio/mp4')
@@ -503,17 +503,16 @@ block content
                     else
                         button.subscribe.btn.fw.btn-success.op80.subscribeButton(style="border-radius:4px;") Subscribe (#{subscriberAmount})
 
-                if user
-                    div(style="margin-top:12px")
-                        // TODO: this should create a push subsciption, and it will also send a query to see if it should create a new service worker
-                        div.pushSubscriptionsDiv(style="display:inline-block")
-                            h2.pushNotificationIcon(style="display:inline")
-                                i.fas.fa-bell(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:0px;color:white;")
-                            p.pushSubscriptions(style="margin-left:1px") #{amountOfPushSubscriptions}
-                        div.emailSubscriptionsDiv(style="display:inline-block")
-                            h2.emailNotificationIcon(style="display:inline")
-                                i.fas.fa-envelope(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:10px;color:white;")
-                            p.emailSubscriptions(style="margin-left:10px") #{amountOfEmailSubscriptions}
+                div(style="margin-top:12px")
+                    // TODO: this should create a push subsciption, and it will also send a query to see if it should create a new service worker
+                    div.pushSubscriptionsDiv(style="display:inline-block")
+                        h2.pushNotificationIcon(style="display:inline")
+                            i.fas.fa-bell(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:0px;color:white;")
+                        p.pushSubscriptions(style="margin-left:1px") #{amountOfPushSubscriptions}
+                    div.emailSubscriptionsDiv(style="display:inline-block")
+                        h2.emailNotificationIcon(style="display:inline")
+                            i.fas.fa-envelope(aria-hidden="true" style="cursor:pointer;font-size:25px;margin-left:10px;color:white;")
+                        p.emailSubscriptions(style="margin-left:10px") #{amountOfEmailSubscriptions}
 
                     //div(style="margin-top:12px")
                     //    // TODO: this should create a push subsciption, and it will also send a query to see if it should create a new service worker
@@ -527,10 +526,6 @@ block content
                 //div.change-size-button
                 //    h2
                 //        img.pushNotificationIcon(src="/images/push-notif-dark.jpg" aria-hidden="true" style="cursor:pointer;color:#a5a5a5;width:43px;")
-
-
-                br
-                br
 
 
             div.col-sm-6.uploadDescriptionColumn
@@ -886,173 +881,19 @@ block extra_js
   script(src="/js/notificationServiceWorker.js")
 
   if user
-        script.
+    include pugJavascript/emailAndPushNotifications
 
-            // EMAIL SUBSCRIPTION
-            $(document).ready(function(){
-
-              let amountOfEmailSubscriptions = Number('#{amountOfEmailSubscriptions}');
-
-              let amountOfPushSubscriptions = Number('#{amountOfPushSubscriptions}');
-
-              var alreadyHaveEmailNotifsOn = '#{alreadySubscribedForEmails}' == 'true'
-
-              var viewerHasConfirmedEmailAddress = #{viewingUserHasConfirmedEmail}
-
-              console.log('already have email notis on')
-
-              if (alreadyHaveEmailNotifsOn) {
-                $('.emailNotificationIcon i').css('color', 'white')
-              } else {
-                $('.emailNotificationIcon i').css('color', 'gray')
-              }
-
-              if (viewerHasConfirmedEmailAddress) {
-
-                $('.emailNotificationIcon').click(function () {
-                  console.log('Email notification icon clicked');
-                  var csrf = '#{_csrf}'
-
-                  const data = {
-                    _csrf: csrf,
-                    user: '#{user.channelUrl}',
-                    channel: '#{upload.uploader.channelUrl}'
-                  }
-
-                  $.ajax({
-                    type: 'POST',
-                    url: `/api/subscribeToEmailNotifications`,
-                    data,
-                    success: function (data) {
-
-                      $('.emailNotificationIcon i').css('color', 'white')
-                      let swalText = 'You have subscribed to their email notifications'
-
-                      if (alreadyHaveEmailNotifsOn) {
-
-                        amountOfEmailSubscriptions = amountOfEmailSubscriptions - 1
-
-                        $('.emailSubscriptions').text(amountOfEmailSubscriptions)
-
-                        swalText = 'You have unsubscribed from their email notifications'
-                        $('.emailNotificationIcon i').css('color', 'gray')
-                      } else {
-                        amountOfEmailSubscriptions = amountOfEmailSubscriptions + 1
-
-                        $('.emailSubscriptions').text(amountOfEmailSubscriptions)
-                      }
-
-
-
-
-
-                      swal(swalText);
-
-                      alreadyHaveEmailNotifsOn = !alreadyHaveEmailNotifsOn;
-
-                      console.log(data);
-
-                      // Shows undefined when at 100%
-
-
-                    },
-                    error: function (err) {
-                      console.log(err);
-                    }
-                  });
-                })
-                // if viewer doesn't have confirmed email
-                // (can make smarter (please 'finish confirming') if you want
-              } else {
-                $('.emailNotificationIcon').click(function () {
-                  swal('Please finish confirming your email address on your account page first');
-                })
-
-                // TODO: if pending confirmation, say "please confirmation confirmation
-                // otherwise,
-              }
-
-              var alreadyHavePushNotifsOn = '#{alreadyHavePushNotifsOn}' == 'true'
-
-              // console.log('ready');
-              // console.log(alreadyHavePushNotifsOn);
-
-              if (alreadyHavePushNotifsOn) {
-                $('.pushNotificationIcon i').css('color', 'white')
-              } else {
-                  $('.pushNotificationIcon i').css('color', 'gray')
-              }
-
-              // if the user's device doesn't have support for service worker and push manager
-              // note: Safari has ServiceWorker but not PushManager
-              if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-                $('.pushSubscriptionsDiv').hide()
-              }
-
-
-              $('.pushNotificationIcon').click(function () {
-                console.log('hello');
-                var csrf = '#{_csrf}'
-
-                const data = {
-                  _csrf: csrf,
-                  user: '#{user.channelUrl}',
-                  channel: '#{upload.uploader.channelUrl}'
-                }
-
-                $.ajax({
-                  type: 'POST',
-                  url: `/api/subscribeToPushNotifications`,
-                  data,
-                  success: function (data) {
-
-                    // by default, turn the color grey and load up 'you have subbed' as the text
-                    $('.pushNotificationIcon i').css('color', 'white')
-                    let swalText = 'You have subscribed to their push notifications'
-
-                    // if push notifs already on
-                    if (alreadyHavePushNotifsOn) {
-                      amountOfPushSubscriptions = amountOfPushSubscriptions - 1
-
-                      $('.pushSubscriptions').text(amountOfPushSubscriptions)
-
-                      swalText = 'You have unsubscribed from their push notifications'
-                      $('.pushNotificationIcon i').css('color', 'gray')
-                    } else {
-                      amountOfPushSubscriptions = amountOfPushSubscriptions + 1
-
-                      $('.pushSubscriptions').text(amountOfPushSubscriptions)
-
-                    }
-
-                    swal(swalText);
-
-                    alreadyHavePushNotifsOn = !alreadyHavePushNotifsOn;
-
-                    console.log(data);
-                    //- console.log(data);
-
-                    // Shows undefined when at 100%
-
-
-                  },
-                  error: function (err) {
-                    console.log(err);
-                  }
-                });
-              })
-            })
-
+    script.
+        // pretty sure this is the register of a worker
+        $('.pushNotificationIcon').click(function () {
+          main();
+        })
+  else
+      include pugJavascript/registerToUseFeature
 
   script.
 
     $(document).ready(function () {
-
-
-
-      $('.pushNotificationIcon').click(function(){
-        main();
-      })
 
       const uploadDescriptionText = $('#uploadDescriptionText');
 
@@ -1101,15 +942,15 @@ block extra_js
 
       // this works properly because it runs right when the video has started
       v.addEventListener('playing', function (event) {
-        console.log('event!!')
-        console.log(event);
+        // console.log('event!!')
+        // console.log(event);
 
         // $('.frameJumper').css({"visibility":"hidden"});
       })
 
       v.addEventListener('pause', function (event) {
-        console.log('event!!')
-        console.log(event);
+        // console.log('event!!')
+        // console.log(event);
 
         // $('.frameJumper').css({"visibility":"initial"});
       })
@@ -1688,6 +1529,8 @@ block extra_footer_js
   include ./mediaPlayerPartials/repeatFunctionalityJs
 
   include ./mediaPlayerPartials/reactFunctionalityJs
+
+  include ./mediaPlayerPartials/promptToRegisterFunctionality
 
   // if the upload is longer than 15 minutes and there's a user
   if ( upload.durationInSeconds > (15 * 60) ) && user
